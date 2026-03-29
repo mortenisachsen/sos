@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.tomwood.sos-github-autosync</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/sh</string>
+    <string>/Users/mortenisachsen/Documents/TW_Service_Order_System/ops/scripts/github_autosync.sh</string>
+  </array>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+    <key>REPO_DIR</key>
+    <string>/Users/mortenisachsen/Documents/TW_Service_Order_System</string>
+    <key>REMOTE</key>
+    <string>origin</string>
+    <key>BRANCH</key>
+    <string>main</string>
+  </dict>
+
+  <key>RunAtLoad</key>
+  <true/>
+
+  <key>StartInterval</key>
+  <integer>120</integer>
+
+  <key>StandardOutPath</key>
+  <string>/tmp/com.tomwood.sos-github-autosync.log</string>
+  <key>StandardErrorPath</key>
+  <string>/tmp/com.tomwood.sos-github-autosync.log</string>
+</dict>
+</plist>
