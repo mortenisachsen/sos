@@ -1,0 +1,10 @@
+.git
+.DS_Store
+__pycache__/
+*.py[cod]
+.env
+dist/
+db/*.db
+db/*.db-shm
+db/*.db-wal
+

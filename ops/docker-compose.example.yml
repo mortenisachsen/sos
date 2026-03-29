@@ -1,0 +1,22 @@
+services:
+  tomwood-workshop:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    image: tomwood-workshop:latest
+    ports:
+      - "8484:8484"
+    environment:
+      PORT: "8484"
+      DB_PATH: /app/data/tomwood.db
+      COOKIE_SECURE: "1"
+      SESSION_TTL_HOURS: "12"
+      # GOOGLE_CLIENT_ID: your-google-web-client-id.apps.googleusercontent.com
+      # GOOGLE_HOSTED_DOMAIN: tomwood.no
+    volumes:
+      - tomwood_data:/app/data
+    restart: unless-stopped
+
+volumes:
+  tomwood_data:
+

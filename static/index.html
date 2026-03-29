@@ -1,0 +1,2429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tom Wood — Workshop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+/* ── RESET & TOKENS ── */
+:root {
+  --black:   #0a0a0a;
+  --white:   #f5f4f0;
+  --g1: #1a1a1a; --g2: #2e2e2e; --g3: #4a4a4a;
+  --g4: #888;    --g5: #ccc;    --g6: #e8e8e4;
+  --g7: #f0ede8;
+  --accent: #c8a96e;
+  --danger: #8b3a3a;
+  --warn:   #8b6a2e;
+  --success:#2e5c3e;
+  --r: 2px;
+  --mono: 'DM Mono', monospace;
+  --serif: 'Cormorant Garamond', serif;
+  --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.06);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.08);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 13px; }
+body { background: var(--white); color: var(--black); font-family: var(--mono); font-weight: 300; min-height: 100vh; display: flex; }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 216px; min-width: 216px; background: var(--black);
+  display: flex; flex-direction: column;
+  position: fixed; inset: 0 auto 0 0; z-index: 100;
+}
+.brand { padding: 28px 22px 24px; border-bottom: 1px solid var(--g2); }
+.brand-name { display: block; line-height: 0; color: var(--white); }
+.brand-logo { display: block; width: 138px; max-width: 100%; height: auto; }
+.brand-sub  { font-size: 8px; letter-spacing: .28em; color: var(--g4); text-transform: uppercase; margin-top: 10px; display: block; }
+.nav { flex: 1; padding: 20px 0; overflow-y: auto; }
+.nav-section { margin-bottom: 24px; }
+.nav-lbl { font-size: 7.5px; letter-spacing: .3em; text-transform: uppercase; color: var(--g3); padding: 0 22px; margin-bottom: 6px; display: block; }
+.nav-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 22px; color: var(--g4); font-size: 11px;
+  letter-spacing: .05em; cursor: pointer;
+  transition: color .12s, background .12s;
+  border-left: 2px solid transparent;
+}
+.nav-item:hover { color: var(--white); background: var(--g2); }
+.nav-item.active { color: var(--white); border-left-color: var(--accent); background: rgba(200,169,110,.08); }
+.nav-icon { width: 13px; text-align: center; font-size: 12px; opacity: .55; }
+.nav-item.active .nav-icon { opacity: 1; }
+.nav-badge { margin-left: auto; background: var(--accent); color: var(--black); font-size: 9px; padding: 1px 5px; border-radius: 20px; }
+.nav-badge.grey { background: var(--g2); color: var(--g4); }
+.sidebar-footer { padding: 18px 22px; border-top: 1px solid var(--g2); }
+.user-row { display: flex; align-items: center; gap: 9px; }
+.avatar { width: 28px; height: 28px; background: var(--g2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 12px; color: var(--g4); flex-shrink: 0; }
+.user-name { font-size: 11px; color: var(--white); letter-spacing: .04em; }
+.user-role { font-size: 9px; color: var(--g4); letter-spacing: .1em; margin-top: 1px; }
+.sidebar-lock-note { font-size: 8px; letter-spacing: .14em; text-transform: uppercase; color: var(--g4); margin-top: 12px; }
+
+/* ── MAIN ── */
+.main { margin-left: 216px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+/* ── TOPBAR ── */
+.topbar {
+  display: flex; align-items: center; gap: 12px;
+  padding: 0 32px; height: 52px;
+  border-bottom: 1px solid var(--g6); background: var(--white);
+  position: sticky; top: 0; z-index: 50;
+}
+.topbar-title { font-family: var(--serif); font-size: 17px; font-weight: 300; letter-spacing: .04em; }
+.topbar-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+.api-status { font-size: 9px; letter-spacing: .12em; color: var(--g4); display: flex; align-items: center; gap: 5px; }
+.api-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--g4); }
+.api-dot.online { background: var(--success); }
+.api-dot.offline { background: var(--danger); }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 14px; font-family: var(--mono); font-size: 9.5px;
+  font-weight: 400; letter-spacing: .1em; text-transform: uppercase;
+  border-radius: var(--r); cursor: pointer;
+  transition: all .13s; border: 1px solid transparent;
+}
+.btn-primary { background: var(--black); color: var(--white); border-color: var(--black); }
+.btn-primary:hover { background: var(--g2); }
+.btn-primary:disabled { background: var(--g5); border-color: var(--g5); cursor: not-allowed; }
+.btn-ghost { background: transparent; color: var(--g3); border-color: var(--g5); }
+.btn-ghost:hover { border-color: var(--black); color: var(--black); }
+.btn-danger { background: transparent; color: var(--danger); border-color: #d9a0a0; }
+.btn-danger:hover { background: var(--danger); color: var(--white); }
+.btn-sm { padding: 4px 10px; font-size: 8.5px; }
+
+/* ── CONTENT ── */
+.content { flex: 1; padding: 28px 32px; }
+
+/* ── STATS ── */
+.stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 1px; background: var(--g6); border: 1px solid var(--g6); border-radius: var(--r); margin-bottom: 28px; overflow: hidden; }
+.stat-card { background: var(--white); padding: 18px 22px; }
+.stat-lbl { font-size: 8px; letter-spacing: .25em; text-transform: uppercase; color: var(--g4); }
+.stat-val { font-family: var(--serif); font-size: 30px; font-weight: 300; line-height: 1; margin-top: 3px; }
+.stat-sub { font-size: 9.5px; color: var(--g4); margin-top: 2px; }
+.stat-sub.up { color: var(--success); }
+.stat-sub.warn { color: var(--warn); }
+.stat-sub.danger { color: var(--danger); }
+
+/* ── FILTERS ── */
+.filters-row { display: flex; gap: 8px; margin-bottom: 16px; align-items: center; flex-wrap: wrap; }
+.search-box {
+  display: flex; align-items: center; gap: 7px;
+  border: 1px solid var(--g5); padding: 5px 11px;
+  border-radius: var(--r); flex: 1; max-width: 260px;
+  transition: border-color .12s;
+}
+.search-box:focus-within { border-color: var(--black); }
+.search-box input { border: none; outline: none; background: transparent; font-family: var(--mono); font-size: 11px; color: var(--black); width: 100%; }
+.search-box input::placeholder { color: var(--g4); }
+.filter-tabs { display: flex; gap: 2px; background: var(--g6); padding: 2px; border-radius: var(--r); }
+.ftab { padding: 4px 11px; font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; border-radius: 1px; cursor: pointer; color: var(--g4); transition: all .11s; border: none; background: transparent; font-family: var(--mono); }
+.ftab.active { background: var(--black); color: var(--white); }
+.ftab:hover:not(.active) { color: var(--black); }
+.sort-sel { margin-left: auto; font-family: var(--mono); font-size: 9.5px; border: 1px solid var(--g5); padding: 5px 9px; border-radius: var(--r); background: var(--white); color: var(--g3); cursor: pointer; outline: none; }
+
+/* ── TABLE ── */
+.table-wrap { border: 1px solid var(--g6); border-radius: var(--r); overflow: hidden; box-shadow: var(--shadow); }
+table { width: 100%; border-collapse: collapse; }
+thead th { background: var(--black); color: var(--g4); font-size: 7.5px; letter-spacing: .25em; text-transform: uppercase; padding: 11px 14px; text-align: left; font-weight: 400; white-space: nowrap; }
+tbody tr { border-bottom: 1px solid var(--g6); cursor: pointer; transition: background .1s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--g7); }
+td { padding: 13px 14px; vertical-align: middle; }
+.order-id { font-size: 9.5px; letter-spacing: .06em; color: var(--g4); }
+.client-name { font-family: var(--serif); font-size: 14px; font-weight: 400; display: block; }
+.client-email { font-size: 9.5px; color: var(--g4); margin-top: 1px; display: block; }
+.item-desc { font-size: 11px; color: var(--black); line-height: 1.35; }
+.item-type { font-size: 8.5px; color: var(--g4); letter-spacing: .1em; text-transform: uppercase; margin-top: 2px; }
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 20px;
+  font-size: 8.5px; letter-spacing: .1em;
+  text-transform: uppercase; font-weight: 400; white-space: nowrap;
+}
+.badge::before { content:''; width:5px;height:5px;border-radius:50%;background:currentColor; }
+.b-intake     { background:#ede9e0;color:#7a6a50; }
+.b-assessment { background:#e8e4f0;color:#5a4e7a; }
+.b-approved   { background:#e0f0e8;color:var(--success); }
+.b-progress   { background:#f0e8d8;color:#8b5e2e; }
+.b-qc         { background:#e4edf5;color:#2e5a8b; }
+.b-ready      { background:#e0f0e4;color:#1e6b3a; }
+.b-complete   { background:#e8e8e8;color:#555; }
+.b-hold       { background:#f5e0e0;color:var(--danger); }
+.b-cancelled  { background:#eee;color:#aaa; }
+.pri-dot { width:7px;height:7px;border-radius:50%;display:inline-block; }
+.pri-high{background:var(--danger);} .pri-med{background:var(--accent);} .pri-low{background:var(--g4);}
+.due-date { font-size: 11px; }
+.due-overdue { color: var(--danger); }
+.price-col { font-family: var(--serif); font-size: 13px; text-align: right; }
+.row-actions { display:flex;gap:3px;justify-content:flex-end;opacity:0;transition:opacity .1s; }
+tbody tr:hover .row-actions { opacity: 1; }
+.icon-btn { width:24px;height:24px;display:flex;align-items:center;justify-content:center;border:1px solid var(--g5);border-radius:var(--r);background:var(--white);cursor:pointer;color:var(--g4);font-size:11px;transition:all .11s; }
+.icon-btn:hover { border-color:var(--black);color:var(--black); }
+
+/* ── SKELETON LOADING ── */
+.skeleton { background: linear-gradient(90deg, var(--g6) 25%, var(--g7) 50%, var(--g6) 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 3px; }
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+.skel-row td { padding: 14px; cursor: default; }
+.skel-row:hover { background: transparent !important; }
+
+/* ── TOAST ── */
+.toast-container { position:fixed;bottom:24px;right:24px;z-index:999;display:flex;flex-direction:column;gap:8px; }
+.toast {
+  display:flex;align-items:center;gap:10px;
+  background:var(--black);color:var(--white);
+  padding:11px 16px;border-radius:var(--r);
+  font-size:11px;letter-spacing:.04em;
+  box-shadow:var(--shadow-lg);
+  animation: toastIn .22s ease;
+  min-width: 240px;
+}
+.toast.success::before { content:'✓'; color:var(--accent); font-size:14px; }
+.toast.error::before   { content:'✕'; color:#d97a7a; font-size:14px; }
+.toast.info::before    { content:'◈'; color:var(--accent); }
+@keyframes toastIn { from{transform:translateY(12px);opacity:0} to{transform:none;opacity:1} }
+
+/* ── OVERLAY ── */
+.overlay {
+  display:none;position:fixed;inset:0;
+  background:rgba(10,10,10,.5);z-index:200;
+  align-items:center;justify-content:center;
+  backdrop-filter:blur(2px);animation:fadeIn .15s;
+}
+.overlay.open { display:flex; }
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{transform:translateY(14px);opacity:0}to{transform:none;opacity:1}}
+@keyframes slideLeft{from{transform:translateX(32px);opacity:0}to{transform:none;opacity:1}}
+
+/* ── MODAL ── */
+.modal {
+  background:var(--white);width:660px;max-width:95vw;max-height:90vh;
+  overflow-y:auto;border-radius:2px;animation:slideUp .2s ease;
+  box-shadow:0 24px 80px rgba(0,0,0,.28);
+}
+.modal-hdr { display:flex;align-items:flex-start;justify-content:space-between;padding:26px 30px 18px;border-bottom:1px solid var(--g6); }
+.modal-title { font-family:var(--serif);font-size:21px;font-weight:300;letter-spacing:.04em; }
+.modal-sub { font-size:9px;color:var(--g4);letter-spacing:.18em;text-transform:uppercase;margin-top:3px; }
+.modal-close { width:26px;height:26px;display:flex;align-items:center;justify-content:center;border:1px solid var(--g5);border-radius:var(--r);cursor:pointer;color:var(--g4);font-size:13px;background:transparent;transition:all .12s;flex-shrink:0; }
+.modal-close:hover { border-color:var(--black);color:var(--black); }
+.modal-body { padding:26px 30px;display:flex;flex-direction:column;gap:22px; }
+.modal-ftr { display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:18px 30px;border-top:1px solid var(--g6);background:var(--g7); }
+
+/* ── FORM ── */
+.fsec { display:flex;flex-direction:column;gap:13px; }
+.fsec-lbl { font-size:7.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--g4);padding-bottom:9px;border-bottom:1px solid var(--g6); }
+.frow { display:grid;grid-template-columns:1fr 1fr;gap:11px; }
+.frow.s1 { grid-template-columns:1fr; }
+.frow.s3 { grid-template-columns:1fr 1fr 1fr; }
+.ffield { display:flex;flex-direction:column;gap:5px; }
+.flbl { font-size:8.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--g3); }
+.finput,.fselect,.ftarea {
+  font-family:var(--mono);font-size:11px;color:var(--black);
+  border:1px solid var(--g5);background:var(--white);
+  padding:8px 11px;border-radius:var(--r);outline:none;
+  transition:border-color .12s;width:100%;
+}
+.finput:focus,.fselect:focus,.ftarea:focus { border-color:var(--black); }
+.finput::placeholder,.ftarea::placeholder { color:var(--g4); }
+.ftarea { resize:vertical;min-height:72px;line-height:1.6; }
+.finput.error,.fselect.error { border-color:var(--danger); }
+.field-error { font-size:9px;color:var(--danger);margin-top:2px; }
+
+/* ── DETAIL PANEL ── */
+.detail-bg { display:none;position:fixed;inset:0;z-index:200;background:rgba(10,10,10,.35);backdrop-filter:blur(1px);animation:fadeIn .15s; }
+.detail-bg.open { display:block; }
+.detail-panel {
+  position:fixed;top:0;right:0;bottom:0;width:448px;
+  background:var(--white);border-left:1px solid var(--g6);
+  display:none;flex-direction:column;
+  box-shadow:-12px 0 40px rgba(0,0,0,.1);z-index:201;
+}
+.detail-panel.open { display:flex;animation:slideLeft .2s ease; }
+.det-hdr { padding:24px 26px 18px;border-bottom:1px solid var(--g6); }
+.det-hdr-row { display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px; }
+.det-id { font-size:8.5px;letter-spacing:.25em;color:var(--g4);text-transform:uppercase;margin-bottom:3px; }
+.det-client { font-family:var(--serif);font-size:22px;font-weight:300; }
+.det-status-row { display:flex;align-items:center;gap:8px;margin-top:10px; }
+.progress-steps { display:flex;gap:3px;margin-top:10px; }
+.ps { flex:1;height:2.5px;background:var(--g6);border-radius:2px;transition:background .3s; }
+.ps.done { background:var(--black); }
+.ps.current { background:var(--accent); }
+.det-body { flex:1;overflow-y:auto;padding:22px 26px;display:flex;flex-direction:column;gap:22px; }
+.det-sec { display:flex;flex-direction:column;gap:10px; }
+.det-sec-title { font-size:7.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--g4);padding-bottom:7px;border-bottom:1px solid var(--g6); }
+.det-row { display:flex;justify-content:space-between;align-items:baseline;gap:10px; }
+.det-key { font-size:9.5px;letter-spacing:.07em;color:var(--g4);flex-shrink:0; }
+.det-val { font-size:11px;color:var(--black);text-align:right;line-height:1.5;max-width:60%; }
+.det-val.serif { font-family:var(--serif);font-size:14px; }
+.det-note { font-size:11px;color:var(--g2);line-height:1.7;padding:11px;background:var(--g7);border-radius:var(--r);border-left:2px solid var(--g5); }
+.det-ftr { padding:18px 26px;border-top:1px solid var(--g6);background:var(--g7);display:flex;gap:7px; }
+.det-ftr .btn { flex:1;justify-content:center; }
+
+/* ── TIMELINE ── */
+.timeline { display:flex;flex-direction:column; }
+.tl-item { display:flex;gap:12px;padding-bottom:15px;position:relative; }
+.tl-item:last-child { padding-bottom:0; }
+.tl-dot-wrap { display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:12px; }
+.tl-dot { width:9px;height:9px;border-radius:50%;border:2px solid var(--g5);background:var(--white);flex-shrink:0;margin-top:2px; }
+.tl-dot.done { background:var(--black);border-color:var(--black); }
+.tl-dot.current { background:var(--accent);border-color:var(--accent); }
+.tl-line { flex:1;width:1px;background:var(--g5);margin-top:3px; }
+.tl-item:last-child .tl-line { display:none; }
+.tl-event { font-size:11px;line-height:1.4; }
+.tl-note { font-size:10px;color:var(--g4);margin-top:2px;line-height:1.4; }
+.tl-time { font-size:9px;color:var(--g4);letter-spacing:.07em;margin-top:2px; }
+
+/* ── STATUS CHANGE ── */
+.status-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:6px; }
+.status-opt {
+  border:1px solid var(--g5);padding:9px 8px;border-radius:var(--r);
+  cursor:pointer;transition:all .12s;text-align:center;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+}
+.status-opt:hover { border-color:var(--black); }
+.status-opt.selected { border-color:var(--black);background:var(--black);color:var(--white); }
+.status-opt-lbl { font-size:10px;letter-spacing:.08em; }
+.status-opt-desc { font-size:8px;color:var(--g4);letter-spacing:.06em; }
+.status-opt.selected .status-opt-desc { color:var(--g4); }
+
+/* ── ADD NOTE INLINE ── */
+.add-note-row { display:flex;gap:6px;margin-top:8px; }
+.add-note-row .finput { flex:1; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-thumb { background:var(--g5);border-radius:4px; }
+
+/* ── EMPTY ── */
+.empty-cell { text-align:center;padding:48px 16px;color:var(--g4);font-size:11px;cursor:default; }
+.empty-row:hover { background:transparent!important; }
+
+/* ── DELETE CONFIRM ── */
+.confirm-modal .modal-body { gap:12px; }
+.confirm-text { font-size:12px;line-height:1.7;color:var(--g3); }
+.confirm-highlight { font-family:var(--serif);font-size:16px;color:var(--black); }
+.confirm-question { display:flex;flex-direction:column;gap:5px; }
+
+/* ── RESPONSIVE PRICE ── */
+.price-big { font-family:var(--serif);font-size:26px;font-weight:300;line-height:1; }
+
+/* ── SETTINGS ── */
+.settings-view { display:none; }
+.settings-view.open { display:block; }
+.settings-grid { display:grid;grid-template-columns:minmax(0,1.4fr) minmax(320px,.95fr);gap:18px;align-items:start; }
+.settings-stack { display:flex;flex-direction:column;gap:18px; }
+.settings-card { border:1px solid var(--g6);border-radius:var(--r);background:var(--white);box-shadow:var(--shadow);overflow:hidden; }
+.settings-card-hdr { padding:20px 22px 0; }
+.settings-card-title { font-family:var(--serif);font-size:19px;font-weight:300;letter-spacing:.03em; }
+.settings-card-sub { font-size:9px;color:var(--g4);letter-spacing:.16em;text-transform:uppercase;margin-top:4px; }
+.settings-card-body { padding:18px 22px 22px;display:flex;flex-direction:column;gap:18px; }
+.settings-note { font-size:10px;line-height:1.7;color:var(--g4); }
+.settings-textarea { min-height:110px; }
+.settings-split { display:grid;grid-template-columns:repeat(3,1fr);gap:11px; }
+.catalog-grid { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px; }
+.catalog-editor {
+  border:1px solid var(--g6);
+  border-radius:var(--r);
+  background:var(--g7);
+  padding:12px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  min-height:190px;
+}
+.catalog-list {
+  display:flex;
+  flex-wrap:wrap;
+  align-content:flex-start;
+  gap:8px;
+  min-height:102px;
+}
+.catalog-chip {
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 10px;
+  border:1px solid var(--g5);
+  border-radius:999px;
+  background:var(--white);
+  font-size:10px;
+  line-height:1.2;
+}
+.catalog-remove {
+  width:18px;
+  height:18px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border:none;
+  background:transparent;
+  color:var(--g4);
+  font-family:var(--mono);
+  font-size:11px;
+  cursor:pointer;
+  border-radius:50%;
+  transition:all .12s;
+  flex-shrink:0;
+}
+.catalog-remove:hover { background:var(--g6); color:var(--danger); }
+.catalog-empty {
+  width:100%;
+  padding:12px;
+  border:1px dashed var(--g5);
+  border-radius:var(--r);
+  background:rgba(255,255,255,.45);
+  color:var(--g4);
+  font-size:10px;
+}
+.catalog-add-row { display:flex; gap:8px; align-items:center; }
+.catalog-add-row .finput { flex:1; }
+.team-list { display:flex;flex-direction:column;gap:10px; }
+.team-row { display:grid;grid-template-columns:1.15fr .95fr .8fr 1fr auto auto;gap:10px;align-items:end;padding:12px;border:1px solid var(--g6);border-radius:var(--r);background:var(--g7); }
+.team-toggle { display:flex;align-items:center;gap:8px;font-size:9.5px;color:var(--g3);white-space:nowrap;padding-bottom:8px; }
+.team-toggle input { accent-color: var(--black); }
+.team-delete-wrap { display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px; }
+.team-delete-btn { margin-bottom:0; }
+.team-tag { display:inline-flex;align-items:center;gap:4px;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--g4); }
+.team-actions { display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap; }
+.team-empty { padding:18px;border:1px dashed var(--g5);border-radius:var(--r);font-size:10.5px;color:var(--g4);background:var(--g7); }
+.team-lock {
+  padding:10px 12px;
+  border:1px dashed var(--g5);
+  border-radius:var(--r);
+  background:rgba(255,255,255,.55);
+  color:var(--g4);
+  font-size:10px;
+  line-height:1.7;
+}
+.topbar-action-group { display:flex;gap:8px;align-items:center; }
+
+@media (max-width: 1180px) {
+  .settings-grid { grid-template-columns:1fr; }
+}
+
+@media (max-width: 860px) {
+  body { display:block; }
+  .sidebar { position:static;width:100%;min-width:0; }
+  .main { margin-left:0; }
+  .topbar { padding:0 16px;height:auto;min-height:52px;flex-wrap:wrap;padding-top:12px;padding-bottom:12px; }
+  .content { padding:20px 16px; }
+  .stats-row { grid-template-columns:repeat(2,1fr); }
+  .frow,.frow.s3,.catalog-grid,.settings-split,.team-row,.status-grid { grid-template-columns:1fr; }
+  .filters-row { align-items:stretch; }
+  .sort-sel { margin-left:0; }
+  .detail-panel { width:min(100vw,448px); }
+  .catalog-add-row { flex-direction:column; align-items:stretch; }
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="brand">
+    <span class="brand-name" aria-label="Tom Wood">
+      <img class="brand-logo" src="/TomWood-Logo-White-RGB.png" alt="Tom Wood">
+    </span>
+    <span class="brand-sub">Workshop System</span>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">
+      <span class="nav-lbl">Orders</span>
+      <div class="nav-item nav-filter active" data-filter="all" onclick="setNavFilter('all',this)">
+        <span class="nav-icon">◈</span> All Orders
+        <span class="nav-badge" id="nb-all">—</span>
+      </div>
+      <div class="nav-item nav-filter" data-filter="intake" onclick="setNavFilter('intake',this)">
+        <span class="nav-icon">⊕</span> Intake
+        <span class="nav-badge grey" id="nb-intake">—</span>
+      </div>
+      <div class="nav-item nav-filter" data-filter="progress" onclick="setNavFilter('progress',this)">
+        <span class="nav-icon">◎</span> In Progress
+      </div>
+      <div class="nav-item nav-filter" data-filter="ready" onclick="setNavFilter('ready',this)">
+        <span class="nav-icon">✓</span> Ready
+        <span class="nav-badge" id="nb-ready" style="display:none"></span>
+      </div>
+      <div class="nav-item nav-filter" data-filter="hold" onclick="setNavFilter('hold',this)">
+        <span class="nav-icon">⊘</span> On Hold
+      </div>
+      <div class="nav-item nav-filter" data-filter="complete" onclick="setNavFilter('complete',this)">
+        <span class="nav-icon">⊡</span> Complete
+      </div>
+    </div>
+    <div class="nav-section">
+      <span class="nav-lbl">Manage</span>
+      <div class="nav-item" onclick="openNewOrder()">
+        <span class="nav-icon">＋</span> New Order
+      </div>
+      <div class="nav-item" onclick="openNewClient()">
+        <span class="nav-icon">⊟</span> Add Client
+      </div>
+      <div class="nav-item nav-view" id="nav-settings" onclick="showSettings(this)" style="display:none">
+        <span class="nav-icon">≡</span> Settings
+      </div>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="avatar" id="sidebar-avatar">M</div>
+      <div>
+        <div class="user-name" id="sidebar-user-name">Mia Larsen</div>
+        <div class="user-role" id="sidebar-user-role">Senior Goldsmith</div>
+      </div>
+    </div>
+    <div class="sidebar-lock-note" id="settings-lock-note" style="display:none">Settings are available to Admin users only</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <header class="topbar">
+    <span class="topbar-title" id="topbar-title">Service Orders</span>
+    <div class="topbar-actions">
+      <span class="api-status">
+        <span class="api-dot" id="api-dot"></span>
+        <span id="api-status-txt">connecting…</span>
+      </span>
+      <div class="topbar-action-group" id="orders-actions">
+        <button class="btn btn-ghost" onclick="refreshData()">↻ Refresh</button>
+        <button class="btn btn-primary" onclick="openNewOrder()">+ New Order</button>
+      </div>
+      <div class="topbar-action-group" id="settings-actions" style="display:none">
+        <button class="btn btn-ghost" onclick="resetSettingsForm()">Reset</button>
+        <button class="btn btn-primary" onclick="saveAllSettings()">Save Settings</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="content">
+    <section id="orders-view">
+      <!-- STATS -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-lbl">Active Orders</div>
+          <div class="stat-val" id="s-active">—</div>
+          <div class="stat-sub" id="s-active-sub"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-lbl">Ready for Collection</div>
+          <div class="stat-val" id="s-ready">—</div>
+          <div class="stat-sub warn" id="s-ready-sub"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-lbl">Overdue</div>
+          <div class="stat-val" id="s-overdue">—</div>
+          <div class="stat-sub danger" id="s-overdue-sub"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-lbl">Revenue (MTD)</div>
+          <div class="stat-val" id="s-revenue">—</div>
+          <div class="stat-sub" id="s-revenue-sub"></div>
+        </div>
+      </div>
+
+      <!-- FILTERS -->
+      <div class="filters-row">
+        <div class="search-box">
+          <span style="color:var(--g4)">⌕</span>
+          <input type="text" id="search-input" placeholder="Search orders, clients, items…" oninput="onSearch(this.value)">
+        </div>
+        <div class="filter-tabs">
+          <button class="ftab active" onclick="setFilter('all',this)">All</button>
+          <button class="ftab" onclick="setFilter('intake',this)">Intake</button>
+          <button class="ftab" onclick="setFilter('progress',this)">In Progress</button>
+          <button class="ftab" onclick="setFilter('ready',this)">Ready</button>
+          <button class="ftab" onclick="setFilter('complete',this)">Complete</button>
+        </div>
+        <select class="sort-sel" id="sort-select" onchange="onSort(this.value)">
+          <option value="due_date">Sort: Due Date</option>
+          <option value="priority">Sort: Priority</option>
+          <option value="client">Sort: Client</option>
+          <option value="value">Sort: Value</option>
+          <option value="created">Sort: Newest</option>
+        </select>
+      </div>
+
+      <!-- TABLE -->
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Order</th>
+              <th>Client</th>
+              <th>Item &amp; Service</th>
+              <th>Status</th>
+              <th>Goldsmith</th>
+              <th>Intake</th>
+              <th>Due</th>
+              <th style="text-align:right">Value</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="orders-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="settings-view" id="settings-view">
+      <div class="settings-grid">
+        <div class="settings-stack">
+          <div class="settings-card">
+            <div class="settings-card-hdr">
+              <div class="settings-card-title">Workspace</div>
+              <div class="settings-card-sub">Brand, currency and operator</div>
+            </div>
+            <div class="settings-card-body">
+              <div class="frow">
+                <div class="ffield">
+                  <label class="flbl">Workshop Name</label>
+                  <input class="finput" id="st-workshop-name" placeholder="Tom Wood">
+                </div>
+                <div class="ffield">
+                  <label class="flbl">Subtitle</label>
+                  <input class="finput" id="st-workshop-subtitle" placeholder="Workshop System">
+                </div>
+              </div>
+              <div class="frow s3">
+                <div class="ffield">
+                  <label class="flbl">Currency Code</label>
+                  <input class="finput" id="st-currency-code" placeholder="NOK" maxlength="8">
+                </div>
+                <div class="ffield">
+                  <label class="flbl">Locale</label>
+                  <input class="finput" id="st-currency-locale" placeholder="nb-NO">
+                </div>
+                <div class="ffield">
+                  <label class="flbl">Current Operator</label>
+                  <select class="fselect" id="st-current-goldsmith">
+                    <option value="">Unassigned</option>
+                  </select>
+                </div>
+              </div>
+              <div class="frow">
+                <div class="ffield">
+                  <label class="flbl">Auto Refresh (seconds)</label>
+                  <input class="finput" id="st-refresh-seconds" type="number" min="10" max="3600" step="5">
+                </div>
+                <div class="ffield">
+                  <label class="flbl">Default Sort</label>
+                  <select class="fselect" id="st-default-sort">
+                    <option value="due_date">Due Date</option>
+                    <option value="priority">Priority</option>
+                    <option value="client">Client</option>
+                    <option value="value">Value</option>
+                    <option value="created">Newest</option>
+                  </select>
+                </div>
+              </div>
+              <p class="settings-note">These settings control the sidebar brand, money formatting, refresh cadence and the default operator shown in the app shell.</p>
+            </div>
+          </div>
+
+          <div class="settings-card">
+            <div class="settings-card-hdr">
+              <div class="settings-card-title">Order Defaults</div>
+              <div class="settings-card-sub">What new orders should start with</div>
+            </div>
+            <div class="settings-card-body">
+              <div class="frow">
+                <div class="ffield">
+                  <label class="flbl">Default Priority</label>
+                  <select class="fselect" id="st-default-priority">
+                    <option value="med">Standard</option>
+                    <option value="high">High — Rush</option>
+                    <option value="low">Low</option>
+                  </select>
+                </div>
+              </div>
+              <div class="settings-split">
+                <div class="ffield">
+                  <label class="flbl">Rush Due Days</label>
+                  <input class="finput" id="st-due-high" type="number" min="0" max="365">
+                </div>
+                <div class="ffield">
+                  <label class="flbl">Standard Due Days</label>
+                  <input class="finput" id="st-due-med" type="number" min="0" max="365">
+                </div>
+                <div class="ffield">
+                  <label class="flbl">Low Priority Due Days</label>
+                  <input class="finput" id="st-due-low" type="number" min="0" max="365">
+                </div>
+              </div>
+              <p class="settings-note">When staff open a new order, the system will suggest a due date from these lead times unless they override it manually.</p>
+            </div>
+          </div>
+
+          <div class="settings-card">
+            <div class="settings-card-hdr">
+              <div class="settings-card-title">Catalogs</div>
+              <div class="settings-card-sub">Dropdowns used by intake and client forms</div>
+            </div>
+            <div class="settings-card-body">
+              <div class="catalog-grid">
+                <div class="ffield">
+                  <label class="flbl">Item Types</label>
+                  <div class="catalog-editor">
+                    <div class="catalog-list" id="catalog-item-types"></div>
+                    <div class="catalog-add-row">
+                      <input class="finput" id="catalog-input-item-types" placeholder="Add item type" onkeydown="handleCatalogInputKeydown('item_types', event)">
+                      <button class="btn btn-ghost btn-sm" type="button" onclick="addCatalogItem('item_types')">+ Add</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="ffield">
+                  <label class="flbl">Materials</label>
+                  <div class="catalog-editor">
+                    <div class="catalog-list" id="catalog-materials"></div>
+                    <div class="catalog-add-row">
+                      <input class="finput" id="catalog-input-materials" placeholder="Add material" onkeydown="handleCatalogInputKeydown('item_materials', event)">
+                      <button class="btn btn-ghost btn-sm" type="button" onclick="addCatalogItem('item_materials')">+ Add</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="ffield">
+                  <label class="flbl">Service Types</label>
+                  <div class="catalog-editor">
+                    <div class="catalog-list" id="catalog-service-types"></div>
+                    <div class="catalog-add-row">
+                      <input class="finput" id="catalog-input-service-types" placeholder="Add service type" onkeydown="handleCatalogInputKeydown('service_types', event)">
+                      <button class="btn btn-ghost btn-sm" type="button" onclick="addCatalogItem('service_types')">+ Add</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="ffield">
+                  <label class="flbl">Client Contact Methods</label>
+                  <div class="catalog-editor">
+                    <div class="catalog-list" id="catalog-contact-methods"></div>
+                    <div class="catalog-add-row">
+                      <input class="finput" id="catalog-input-contact-methods" placeholder="Add contact method" onkeydown="handleCatalogInputKeydown('contact_methods', event)">
+                      <button class="btn btn-ghost btn-sm" type="button" onclick="addCatalogItem('contact_methods')">+ Add</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <p class="settings-note">Add or remove options one by one here. Duplicate or blank entries are ignored automatically, and each catalog must keep at least one option.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-stack">
+          <div class="settings-card">
+            <div class="settings-card-hdr">
+              <div class="settings-card-title">Team Directory</div>
+              <div class="settings-card-sub">Assignment options for service orders</div>
+            </div>
+            <div class="settings-card-body">
+              <div class="team-lock" id="team-admin-note" style="display:none">Select a current operator with `Admin` user level to add or edit team members.</div>
+              <div class="team-list" id="team-list"></div>
+              <div class="team-actions">
+                <button class="btn btn-ghost" id="team-add-btn" onclick="addTeamRow()">+ Add Team Member</button>
+                <button class="btn btn-primary" id="team-save-btn" onclick="saveTeam()">Save Team</button>
+              </div>
+              <p class="settings-note">Inactive team members stay in historical orders but no longer appear in the order assignment dropdown. Only Admin users can manage team members.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<!-- ══ TOAST ══ -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ══ NEW / EDIT ORDER MODAL ══ -->
+<div class="overlay" id="order-modal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div>
+        <div class="modal-title" id="om-title">New Service Order</div>
+        <div class="modal-sub" id="om-sub">Workshop intake form</div>
+      </div>
+      <button class="modal-close" onclick="closeOrderModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="fsec">
+        <div class="fsec-lbl">Client</div>
+        <div class="frow">
+          <div class="ffield">
+            <label class="flbl">Client *</label>
+            <select class="fselect" id="f-client" required>
+              <option value="">Select client…</option>
+            </select>
+          </div>
+          <div class="ffield" style="justify-content:flex-end">
+            <label class="flbl" style="visibility:hidden">or</label>
+            <button class="btn btn-ghost btn-sm" onclick="openNewClient(true)" style="align-self:flex-end">+ New Client</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="fsec">
+        <div class="fsec-lbl">Item Details</div>
+        <div class="frow">
+          <div class="ffield">
+            <label class="flbl">Item Name *</label>
+            <input class="finput" id="f-item-name" placeholder="e.g. Chunky Molten Ring">
+          </div>
+          <div class="ffield">
+            <label class="flbl">Item Type *</label>
+            <select class="fselect" id="f-item-type">
+              <option>Ring</option><option>Necklace</option><option>Bracelet</option>
+              <option>Earrings</option><option>Brooch</option><option>Watch</option><option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="frow">
+          <div class="ffield">
+            <label class="flbl">Material</label>
+            <select class="fselect" id="f-material">
+              <option value="">— Select —</option>
+              <option>18k Yellow Gold</option><option>18k White Gold</option><option>18k Rose Gold</option>
+              <option>Sterling Silver</option><option>Platinum</option><option>Mixed / Unknown</option>
+            </select>
+          </div>
+          <div class="ffield">
+            <label class="flbl">Condition</label>
+            <input class="finput" id="f-condition" placeholder="Briefly describe condition">
+          </div>
+        </div>
+        <div class="frow s1">
+          <div class="ffield">
+            <label class="flbl">Full Description</label>
+            <textarea class="ftarea" id="f-item-desc" placeholder="Size, markings, hallmarks, unique features…"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="fsec">
+        <div class="fsec-lbl">Service</div>
+        <div class="frow">
+          <div class="ffield">
+            <label class="flbl">Service Type *</label>
+            <select class="fselect" id="f-service">
+              <option>Polishing &amp; Cleaning</option>
+              <option>Sizing</option>
+              <option>Sizing + Polishing</option>
+              <option>Stone Setting</option>
+              <option>Stone Replacement</option>
+              <option>Clasp Replacement</option>
+              <option>Clasp Repair</option>
+              <option>Soldering — Broken Link</option>
+              <option>Prong Re-tipping</option>
+              <option>Engraving</option>
+              <option>Rhodium Plating</option>
+              <option>Polish + Rhodium Plating</option>
+              <option>Full Restoration</option>
+              <option>Custom Work</option>
+              <option>Assessment Only</option>
+            </select>
+          </div>
+          <div class="ffield">
+            <label class="flbl">Priority</label>
+            <select class="fselect" id="f-priority">
+              <option value="med">Standard</option>
+              <option value="high">High — Rush</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+        </div>
+        <div class="frow s3">
+          <div class="ffield">
+            <label class="flbl">Assigned To</label>
+            <select class="fselect" id="f-goldsmith">
+              <option value="">Unassigned</option>
+            </select>
+          </div>
+          <div class="ffield">
+            <label class="flbl">Due Date</label>
+            <input class="finput" id="f-due" type="date">
+          </div>
+          <div class="ffield">
+            <label class="flbl" id="f-price-label">Est. Price (NOK)</label>
+            <input class="finput" id="f-price" type="number" min="0" step="50" placeholder="0">
+          </div>
+        </div>
+        <div class="frow s1">
+          <div class="ffield">
+            <label class="flbl">Internal Notes</label>
+            <textarea class="ftarea" id="f-notes" placeholder="Notes visible to workshop staff only…"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-ftr">
+      <button class="btn btn-ghost" onclick="closeOrderModal()">Cancel</button>
+      <button class="btn btn-primary" id="om-save-btn" onclick="saveOrder()">Create Order →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ NEW CLIENT MODAL ══ -->
+<div class="overlay" id="client-modal">
+  <div class="modal" style="width:480px">
+    <div class="modal-hdr">
+      <div>
+        <div class="modal-title">New Client</div>
+        <div class="modal-sub">Add to client directory</div>
+      </div>
+      <button class="modal-close" onclick="closeClientModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="fsec">
+        <div class="frow">
+          <div class="ffield">
+            <label class="flbl">Full Name *</label>
+            <input class="finput" id="cf-name" placeholder="e.g. Emma Strand">
+          </div>
+          <div class="ffield">
+            <label class="flbl">Phone</label>
+            <input class="finput" id="cf-phone" placeholder="+47 000 00 000">
+          </div>
+        </div>
+        <div class="frow">
+          <div class="ffield">
+            <label class="flbl">Email *</label>
+            <input class="finput" id="cf-email" type="email" placeholder="client@email.com">
+          </div>
+          <div class="ffield">
+            <label class="flbl">Preferred Contact</label>
+            <select class="fselect" id="cf-contact">
+              <option value="email">Email</option>
+              <option value="phone">Phone</option>
+              <option value="sms">SMS</option>
+              <option value="whatsapp">WhatsApp</option>
+            </select>
+          </div>
+        </div>
+        <div class="frow s1">
+          <div class="ffield">
+            <label class="flbl">Notes</label>
+            <textarea class="ftarea" id="cf-notes" style="min-height:56px" placeholder="VIP, allergies, preferences…"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-ftr">
+      <button class="btn btn-ghost" onclick="closeClientModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveClient()">Add Client →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ STATUS CHANGE MODAL ══ -->
+<div class="overlay" id="status-modal">
+  <div class="modal" style="width:500px">
+    <div class="modal-hdr">
+      <div>
+        <div class="modal-title">Update Status</div>
+        <div class="modal-sub" id="sm-sub">—</div>
+      </div>
+      <button class="modal-close" onclick="closeStatusModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="fsec">
+        <div class="fsec-lbl">New Status</div>
+        <div class="status-grid" id="status-grid"></div>
+      </div>
+      <div class="fsec">
+        <div class="fsec-lbl">Note (optional)</div>
+        <textarea class="ftarea" id="sm-note" placeholder="Add a note to the timeline…" style="min-height:56px"></textarea>
+      </div>
+    </div>
+    <div class="modal-ftr">
+      <button class="btn btn-ghost" onclick="closeStatusModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmStatusChange()">Update →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DELETE CONFIRM ══ -->
+<div class="overlay" id="delete-modal">
+  <div class="modal confirm-modal" style="width:400px">
+    <div class="modal-hdr">
+      <div class="modal-title">Delete Order</div>
+      <button class="modal-close" onclick="closeDeleteModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="confirm-text">This will permanently delete</p>
+      <p class="confirm-highlight" id="dm-label">—</p>
+      <p class="confirm-text">This cannot be undone.</p>
+    </div>
+    <div class="modal-ftr">
+      <button class="btn btn-ghost" onclick="closeDeleteModal()">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmDelete()">Delete Order</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DELETE TEAM MEMBER ══ -->
+<div class="overlay" id="team-delete-modal">
+  <div class="modal confirm-modal" style="width:440px">
+    <div class="modal-hdr">
+      <div>
+        <div class="modal-title">Delete Team Member</div>
+        <div class="modal-sub">Admin confirmation required</div>
+      </div>
+      <button class="modal-close" onclick="closeTeamDeleteModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="confirm-text">This will permanently delete</p>
+      <p class="confirm-highlight" id="tdm-label">—</p>
+      <p class="confirm-text" id="tdm-copy">To continue, answer both confirmation checks below.</p>
+      <div class="confirm-question">
+        <label class="flbl">Type Full Name</label>
+        <input class="finput" id="tdm-name-check" placeholder="Enter the exact full name">
+      </div>
+      <div class="confirm-question">
+        <label class="flbl">Type DELETE</label>
+        <input class="finput" id="tdm-delete-check" placeholder="Type DELETE in capitals">
+      </div>
+    </div>
+    <div class="modal-ftr">
+      <button class="btn btn-ghost" onclick="closeTeamDeleteModal()">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmTeamDelete()">Delete User</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ORDER DETAIL PANEL ══ -->
+<div class="detail-bg" id="detail-bg" onclick="closeDetail(event)"></div>
+<div class="detail-panel" id="detail-panel">
+  <div class="det-hdr">
+    <div class="det-hdr-row">
+      <div>
+        <div class="det-id" id="dp-id">—</div>
+        <div class="det-client" id="dp-client">—</div>
+      </div>
+      <button class="modal-close" onclick="closeDetailPanel()">✕</button>
+    </div>
+    <div class="det-status-row">
+      <span id="dp-badge">—</span>
+      <span class="pri-dot" id="dp-pri-dot"></span>
+      <span style="font-size:9.5px;color:var(--g4);letter-spacing:.07em" id="dp-pri-lbl"></span>
+      <span style="margin-left:auto;font-size:9.5px;color:var(--g4);letter-spacing:.06em" id="dp-email"></span>
+    </div>
+    <div class="progress-steps" id="dp-progress"></div>
+  </div>
+  <div class="det-body">
+    <div class="det-sec">
+      <div class="det-sec-title">Item</div>
+      <div class="det-row"><span class="det-key">Name</span><span class="det-val serif" id="dp-item">—</span></div>
+      <div class="det-row"><span class="det-key">Type</span><span class="det-val" id="dp-type">—</span></div>
+      <div class="det-row"><span class="det-key">Material</span><span class="det-val" id="dp-material">—</span></div>
+      <div class="det-row"><span class="det-key">Condition</span><span class="det-val" id="dp-condition">—</span></div>
+      <div class="det-row"><span class="det-key">Service</span><span class="det-val" id="dp-service">—</span></div>
+    </div>
+    <div class="det-sec">
+      <div class="det-sec-title">Logistics</div>
+      <div class="det-row"><span class="det-key">Goldsmith</span><span class="det-val" id="dp-goldsmith">—</span></div>
+      <div class="det-row"><span class="det-key">Received</span><span class="det-val" id="dp-received">—</span></div>
+      <div class="det-row"><span class="det-key">Due Date</span><span class="det-val" id="dp-due">—</span></div>
+      <div class="det-row"><span class="det-key">Est. Value</span>
+        <div><div class="price-big" id="dp-price">—</div></div>
+      </div>
+    </div>
+    <div class="det-sec" id="dp-notes-sec">
+      <div class="det-sec-title">Workshop Notes</div>
+      <div class="det-note" id="dp-notes">—</div>
+    </div>
+    <div class="det-sec">
+      <div class="det-sec-title">Activity Timeline</div>
+      <div class="timeline" id="dp-timeline"></div>
+      <div class="add-note-row">
+        <input class="finput" id="add-note-input" placeholder="Add note to timeline…">
+        <button class="btn btn-ghost btn-sm" onclick="addNote()">Add</button>
+      </div>
+    </div>
+  </div>
+  <div class="det-ftr">
+    <button class="btn btn-ghost" onclick="editCurrentOrder()">✎ Edit</button>
+    <button class="btn btn-ghost" onclick="openStatusModal()">⇄ Status</button>
+    <button class="btn btn-danger btn-sm" onclick="openDeleteFromDetail()">✕</button>
+    <button class="btn btn-primary" onclick="advanceStatus()">Advance →</button>
+  </div>
+</div>
+
+<script>
+const API = '/api';
+
+const DEFAULT_SETTINGS = {
+  workshop_name: 'Tom Wood',
+  workshop_subtitle: 'Workshop System',
+  currency_code: 'NOK',
+  currency_locale: 'nb-NO',
+  dashboard_refresh_seconds: 30,
+  default_sort: 'due_date',
+  default_priority: 'med',
+  default_due_days: { high: 2, med: 7, low: 14 },
+  current_goldsmith_id: 1,
+  item_types: ['Ring', 'Necklace', 'Bracelet', 'Earrings', 'Brooch', 'Watch', 'Other'],
+  item_materials: ['18k Yellow Gold', '18k White Gold', '18k Rose Gold', 'Sterling Silver', 'Platinum', 'Mixed / Unknown'],
+  service_types: [
+    'Polishing & Cleaning',
+    'Sizing',
+    'Sizing + Polishing',
+    'Stone Setting',
+    'Stone Replacement',
+    'Clasp Replacement',
+    'Clasp Repair',
+    'Soldering — Broken Link',
+    'Prong Re-tipping',
+    'Engraving',
+    'Rhodium Plating',
+    'Polish + Rhodium Plating',
+    'Full Restoration',
+    'Custom Work',
+    'Assessment Only',
+  ],
+  contact_methods: ['email', 'phone', 'sms', 'whatsapp'],
+};
+
+const SM = {
+  intake:     { label:'Intake',      cls:'b-intake',     next:'assessment' },
+  assessment: { label:'Assessment',  cls:'b-assessment', next:'approved' },
+  approved:   { label:'Approved',    cls:'b-approved',   next:'progress' },
+  progress:   { label:'In Progress', cls:'b-progress',   next:'qc' },
+  qc:         { label:'QC Check',    cls:'b-qc',         next:'ready' },
+  ready:      { label:'Ready',       cls:'b-ready',      next:'complete' },
+  complete:   { label:'Complete',    cls:'b-complete',   next:null },
+  hold:       { label:'On Hold',     cls:'b-hold',       next:null },
+  cancelled:  { label:'Cancelled',   cls:'b-cancelled',  next:null },
+};
+const STATUS_STEPS = ['intake','assessment','approved','progress','qc','ready','complete'];
+
+let allOrders = [];
+let currentFilter = 'all';
+let currentSearch = '';
+let currentSort = 'due_date';
+let currentView = 'orders';
+let currentDetailId = null;
+let editingOrderId = null;
+let deletingOrderId = null;
+let statusChangeId = null;
+let selectedNewStatus = null;
+let clientModalReturnToOrder = false;
+let deletingTeamIndex = null;
+let goldsmiths = [];
+let allGoldsmiths = [];
+let clients = [];
+let appSettings = normalizeSettings();
+let teamDrafts = [];
+let catalogDrafts = {};
+let refreshIntervalId = null;
+let apiStatusIntervalId = null;
+let searchTimer = null;
+let appBooted = false;
+
+const CATALOG_CONFIG = {
+  item_types: {
+    listId: 'catalog-item-types',
+    inputId: 'catalog-input-item-types',
+    empty: 'No item types yet.',
+    lower: false,
+  },
+  item_materials: {
+    listId: 'catalog-materials',
+    inputId: 'catalog-input-materials',
+    empty: 'No materials yet.',
+    lower: false,
+  },
+  service_types: {
+    listId: 'catalog-service-types',
+    inputId: 'catalog-input-service-types',
+    empty: 'No service types yet.',
+    lower: false,
+  },
+  contact_methods: {
+    listId: 'catalog-contact-methods',
+    inputId: 'catalog-input-contact-methods',
+    empty: 'No contact methods yet.',
+    lower: true,
+  },
+};
+const USER_LEVELS = [
+  { value: 'staff', label: 'Staff' },
+  { value: 'admin', label: 'Admin' },
+];
+
+function cloneDefaultSettings() {
+  return JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+}
+
+function normalizeSettings(data = {}) {
+  const base = cloneDefaultSettings();
+  const merged = { ...base, ...data };
+  merged.default_due_days = { ...base.default_due_days, ...(data.default_due_days || {}) };
+
+  ['item_types', 'item_materials', 'service_types', 'contact_methods'].forEach(key => {
+    if (!Array.isArray(merged[key]) || !merged[key].length) merged[key] = base[key];
+  });
+
+  if (merged.current_goldsmith_id === '') merged.current_goldsmith_id = null;
+  return merged;
+}
+
+async function apiFetch(path, opts = {}) {
+  const res = await fetch(API + path, {
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'same-origin',
+    ...opts,
+    body: opts.body ? JSON.stringify(opts.body) : undefined,
+  });
+  let data = {};
+  try {
+    data = await res.json();
+  } catch {}
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data;
+}
+
+async function checkApi() {
+  try {
+    await apiFetch('/stats');
+    document.getElementById('api-dot').className = 'api-dot online';
+    document.getElementById('api-status-txt').textContent = 'live';
+  } catch {
+    document.getElementById('api-dot').className = 'api-dot offline';
+    document.getElementById('api-status-txt').textContent = 'offline — run server.py';
+  }
+}
+
+function getCurrencyCode() {
+  return String(appSettings.currency_code || DEFAULT_SETTINGS.currency_code).toUpperCase();
+}
+
+function getCurrencyLocale() {
+  return appSettings.currency_locale || DEFAULT_SETTINGS.currency_locale;
+}
+
+function formatMoney(amount, currency = getCurrencyCode()) {
+  if (amount === null || amount === undefined || amount === '') return '—';
+  const numeric = Number(amount);
+  if (!Number.isFinite(numeric)) return '—';
+  return `${currency} ${Math.round(numeric).toLocaleString(getCurrencyLocale())}`;
+}
+
+function formatContactMethod(value) {
+  const lower = String(value || '').toLowerCase();
+  if (lower === 'sms') return 'SMS';
+  if (lower === 'whatsapp') return 'WhatsApp';
+  if (!lower) return '';
+  return lower.charAt(0).toUpperCase() + lower.slice(1);
+}
+
+function parseLines(value, { lower = false } = {}) {
+  const seen = new Set();
+  return String(value || '')
+    .split('\n')
+    .map(line => lower ? line.trim().toLowerCase() : line.trim())
+    .filter(line => {
+      if (!line) return false;
+      const marker = line.toLowerCase();
+      if (seen.has(marker)) return false;
+      seen.add(marker);
+      return true;
+    });
+}
+
+function normalizeCatalogValues(values, { lower = false } = {}) {
+  const seen = new Set();
+  return (Array.isArray(values) ? values : [])
+    .map(value => lower ? String(value || '').trim().toLowerCase() : String(value || '').trim())
+    .filter(value => {
+      if (!value) return false;
+      const marker = value.toLowerCase();
+      if (seen.has(marker)) return false;
+      seen.add(marker);
+      return true;
+    });
+}
+
+function esc(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmtDate(dt) {
+  if (!dt) return '—';
+  const d = new Date(dt);
+  return d.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+}
+
+function fmtDateTime(dt) {
+  if (!dt) return '—';
+  const d = new Date(dt);
+  return d.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' })
+    + ', ' + d.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+}
+
+function toast(msg, type='info') {
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<span>${esc(msg)}</span>`;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => el.remove(), 3200);
+}
+
+function getCatalogDisplayValue(key, value) {
+  return key === 'contact_methods' ? formatContactMethod(value) : value;
+}
+
+function formatUserLevel(value) {
+  return String(value || 'staff').toLowerCase() === 'admin' ? 'Admin' : 'Staff';
+}
+
+function getCurrentOperatorRecord() {
+  const currentId = Number(appSettings.current_goldsmith_id || 0);
+  return allGoldsmiths.find(g => Number(g.id) === currentId) || null;
+}
+
+function isCurrentOperatorAdmin() {
+  const current = getCurrentOperatorRecord();
+  return String(current?.access_level || 'staff').toLowerCase() === 'admin';
+}
+
+function syncSettingsAccess({ notify = false } = {}) {
+  const canAccess = isCurrentOperatorAdmin();
+  const navSettings = document.getElementById('nav-settings');
+  const lockNote = document.getElementById('settings-lock-note');
+
+  if (navSettings) navSettings.style.display = canAccess ? '' : 'none';
+  if (lockNote) lockNote.style.display = canAccess ? 'none' : 'block';
+
+  if (!canAccess && currentView === 'settings') {
+    showOrdersView();
+    if (notify) toast('Settings are available to Admin users only', 'info');
+  }
+}
+
+function syncCatalogDraftsFromSettings() {
+  catalogDrafts = Object.fromEntries(
+    Object.entries(CATALOG_CONFIG).map(([key, config]) => [
+      key,
+      normalizeCatalogValues(appSettings[key] || DEFAULT_SETTINGS[key], { lower: config.lower }),
+    ])
+  );
+}
+
+function renderCatalogEditor(key) {
+  const config = CATALOG_CONFIG[key];
+  const list = document.getElementById(config.listId);
+  const input = document.getElementById(config.inputId);
+  if (!list || !input) return;
+
+  if (!Array.isArray(catalogDrafts[key])) catalogDrafts[key] = [];
+  list.innerHTML = '';
+
+  if (!catalogDrafts[key].length) {
+    const empty = document.createElement('div');
+    empty.className = 'catalog-empty';
+    empty.textContent = config.empty;
+    list.appendChild(empty);
+  } else {
+    catalogDrafts[key].forEach(item => {
+      const chip = document.createElement('div');
+      chip.className = 'catalog-chip';
+
+      const label = document.createElement('span');
+      label.textContent = getCatalogDisplayValue(key, item);
+
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'catalog-remove';
+      remove.setAttribute('aria-label', `Delete ${item}`);
+      remove.textContent = '✕';
+      remove.addEventListener('click', () => removeCatalogItem(key, item));
+
+      chip.appendChild(label);
+      chip.appendChild(remove);
+      list.appendChild(chip);
+    });
+  }
+
+  input.value = '';
+}
+
+function renderCatalogEditors() {
+  Object.keys(CATALOG_CONFIG).forEach(renderCatalogEditor);
+}
+
+function addCatalogItem(key, rawValue = null, { quiet = false } = {}) {
+  const config = CATALOG_CONFIG[key];
+  if (!config) return false;
+
+  const input = document.getElementById(config.inputId);
+  const nextValue = rawValue === null ? input?.value : rawValue;
+  const cleaned = config.lower
+    ? String(nextValue || '').trim().toLowerCase()
+    : String(nextValue || '').trim();
+
+  if (!cleaned) {
+    if (!quiet && input) input.focus();
+    return false;
+  }
+
+  const existing = catalogDrafts[key] || [];
+  if (existing.some(item => item.toLowerCase() === cleaned.toLowerCase())) {
+    if (!quiet) toast(`${getCatalogDisplayValue(key, cleaned)} already exists`, 'info');
+    if (input) input.value = '';
+    return false;
+  }
+
+  catalogDrafts[key] = [...existing, cleaned];
+  renderCatalogEditor(key);
+  if (!quiet) toast(`${getCatalogDisplayValue(key, cleaned)} added`, 'success');
+  if (input) input.focus();
+  return true;
+}
+
+function removeCatalogItem(key, value) {
+  const items = catalogDrafts[key] || [];
+  if (items.length <= 1) {
+    toast('Keep at least one option in each catalog', 'info');
+    return;
+  }
+
+  catalogDrafts[key] = items.filter(item => item !== value);
+  renderCatalogEditor(key);
+  toast(`${getCatalogDisplayValue(key, value)} removed`, 'info');
+}
+
+function handleCatalogInputKeydown(key, event) {
+  if (event.key !== 'Enter') return;
+  event.preventDefault();
+  addCatalogItem(key);
+}
+
+function commitPendingCatalogInputs() {
+  Object.entries(CATALOG_CONFIG).forEach(([key, config]) => {
+    const input = document.getElementById(config.inputId);
+    if (input && input.value.trim()) addCatalogItem(key, input.value, { quiet: true });
+  });
+}
+
+function setSelectOptions(selectId, values, { placeholder = null, formatter = value => value } = {}) {
+  const sel = document.getElementById(selectId);
+  if (!sel) return;
+  const current = sel.value;
+  const options = [...values];
+
+  if (current && !options.includes(current)) options.unshift(current);
+
+  sel.innerHTML = '';
+  if (placeholder !== null) {
+    const opt = document.createElement('option');
+    opt.value = '';
+    opt.textContent = placeholder;
+    sel.appendChild(opt);
+  }
+
+  options.forEach(value => {
+    const opt = document.createElement('option');
+    opt.value = value;
+    opt.textContent = formatter(value);
+    sel.appendChild(opt);
+  });
+
+  if (current && [...sel.options].some(o => o.value === current)) sel.value = current;
+  else if (!current && placeholder === null && sel.options.length) sel.value = sel.options[0].value;
+}
+
+function ensureOptionPresent(selectId, value, label = value) {
+  if (value === null || value === undefined || value === '') return;
+  const sel = document.getElementById(selectId);
+  if (!sel) return;
+  if ([...sel.options].some(option => option.value === String(value))) return;
+  const opt = document.createElement('option');
+  opt.value = value;
+  opt.textContent = label;
+  sel.appendChild(opt);
+}
+
+function setFilterTabState(filter) {
+  document.querySelectorAll('.ftab').forEach(tab => tab.classList.remove('active'));
+  const map = { all:0, intake:1, progress:2, ready:3, complete:4 };
+  const tabs = document.querySelectorAll('.ftab');
+  if (map[filter] !== undefined) tabs[map[filter]]?.classList.add('active');
+}
+
+function setActiveOrderNav(filter) {
+  document.querySelectorAll('.nav-filter').forEach(item => item.classList.remove('active'));
+  document.querySelector(`.nav-filter[data-filter="${filter}"]`)?.classList.add('active');
+  document.querySelectorAll('.nav-view').forEach(item => item.classList.remove('active'));
+}
+
+function syncTopbarActions() {
+  document.getElementById('topbar-title').textContent = currentView === 'settings' ? 'Settings' : 'Service Orders';
+  document.getElementById('orders-actions').style.display = currentView === 'orders' ? 'flex' : 'none';
+  document.getElementById('settings-actions').style.display = currentView === 'settings' && isCurrentOperatorAdmin() ? 'flex' : 'none';
+  document.getElementById('orders-view').style.display = currentView === 'orders' ? '' : 'none';
+  document.getElementById('settings-view').classList.toggle('open', currentView === 'settings');
+}
+
+function showOrdersView() {
+  currentView = 'orders';
+  setActiveOrderNav(currentFilter);
+  setFilterTabState(currentFilter);
+  syncTopbarActions();
+}
+
+function showSettings(el) {
+  if (!isCurrentOperatorAdmin()) {
+    toast('Settings are available to Admin users only', 'error');
+    showOrdersView();
+    return;
+  }
+  syncTeamDraftsFromDom();
+  currentView = 'settings';
+  document.querySelectorAll('.nav-filter').forEach(item => item.classList.remove('active'));
+  document.querySelectorAll('.nav-view').forEach(item => item.classList.remove('active'));
+  (el || document.getElementById('nav-settings'))?.classList.add('active');
+  populateSettingsForm();
+  renderTeamRows();
+  closeDetailPanel();
+  syncTopbarActions();
+}
+
+function renderSidebarUser() {
+  const configuredUser = getCurrentOperatorRecord();
+  const name = configuredUser?.name || 'Workshop Staff';
+  const roleParts = [];
+  if (configuredUser?.role) roleParts.push(configuredUser.role);
+  if (String(configuredUser?.access_level || 'staff').toLowerCase() === 'admin') roleParts.push('Admin');
+  const role = roleParts.join(' · ') || 'Configured in Settings';
+  document.getElementById('sidebar-user-name').textContent = name;
+  document.getElementById('sidebar-user-role').textContent = role;
+  document.getElementById('sidebar-avatar').textContent = name.charAt(0).toUpperCase() || 'W';
+  syncSettingsAccess();
+}
+
+function populateGoldsmithSelect() {
+  const sel = document.getElementById('f-goldsmith');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">Unassigned</option>';
+  goldsmiths.forEach(g => {
+    const opt = document.createElement('option');
+    opt.value = g.id;
+    opt.textContent = g.name;
+    sel.appendChild(opt);
+  });
+  if (current && [...sel.options].some(o => o.value === current)) sel.value = current;
+}
+
+function populateCurrentGoldsmithSelect() {
+  const sel = document.getElementById('st-current-goldsmith');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Unassigned</option>';
+  allGoldsmiths.forEach(g => {
+    const opt = document.createElement('option');
+    opt.value = g.id;
+    const levelLabel = String(g.access_level || 'staff').toLowerCase() === 'admin' ? 'Admin' : 'Staff';
+    opt.textContent = `${g.name} · ${levelLabel}${Number(g.active) ? '' : ' (Inactive)'}`;
+    sel.appendChild(opt);
+  });
+  sel.value = appSettings.current_goldsmith_id ? String(appSettings.current_goldsmith_id) : '';
+}
+
+function populateClientSelect() {
+  const sel = document.getElementById('f-client');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">Select client…</option>';
+  clients.forEach(client => {
+    const opt = document.createElement('option');
+    opt.value = client.id;
+    opt.textContent = client.name + (client.email ? ` — ${client.email}` : '');
+    sel.appendChild(opt);
+  });
+  if (current) sel.value = current;
+}
+
+function applyCatalogSettings() {
+  setSelectOptions('f-item-type', appSettings.item_types);
+  setSelectOptions('f-material', appSettings.item_materials, { placeholder: '— Select —' });
+  setSelectOptions('f-service', appSettings.service_types);
+  setSelectOptions('cf-contact', appSettings.contact_methods, {
+    formatter: value => formatContactMethod(value),
+  });
+  document.getElementById('f-price-label').textContent = `Est. Price (${getCurrencyCode()})`;
+}
+
+function applyShellSettings({ resetSort = false } = {}) {
+  document.querySelector('.brand-name').setAttribute('aria-label', appSettings.workshop_name || 'Tom Wood');
+  document.querySelector('.brand-sub').textContent = appSettings.workshop_subtitle;
+  renderSidebarUser();
+  applyCatalogSettings();
+
+  if (resetSort || !currentSort) currentSort = appSettings.default_sort || DEFAULT_SETTINGS.default_sort;
+  document.getElementById('sort-select').value = currentSort;
+  configureAutoRefresh();
+}
+
+function configureAutoRefresh() {
+  clearInterval(refreshIntervalId);
+  clearInterval(apiStatusIntervalId);
+  const seconds = Math.max(10, Number(appSettings.dashboard_refresh_seconds) || 30);
+  refreshIntervalId = setInterval(() => {
+    loadStats();
+    loadOrders();
+  }, seconds * 1000);
+  apiStatusIntervalId = setInterval(checkApi, 10000);
+}
+
+async function bootAuthenticatedApp(resetSort = false) {
+  renderSidebarUser();
+  await loadSettings({ resetSort: resetSort || !appBooted });
+  await Promise.all([loadGoldsmiths(), loadClients()]);
+  applyCatalogSettings();
+  populateSettingsForm();
+  await Promise.all([loadStats(), loadOrders()]);
+  appBooted = true;
+  showOrdersView();
+}
+
+async function loadSettings({ resetSort = false } = {}) {
+  try {
+    appSettings = normalizeSettings(await apiFetch('/settings'));
+  } catch {
+    appSettings = normalizeSettings();
+  }
+  applyShellSettings({ resetSort });
+  populateSettingsForm();
+}
+
+async function loadGoldsmiths() {
+  try {
+    allGoldsmiths = (await apiFetch('/goldsmiths?all=1')).map(g => ({
+      ...g,
+      access_level: String(g.access_level || 'staff').toLowerCase(),
+    }));
+    goldsmiths = allGoldsmiths.filter(g => Number(g.active) === 1);
+    teamDrafts = allGoldsmiths.map(g => ({
+      ...g,
+      access_level: String(g.access_level || 'staff').toLowerCase(),
+      active: Number(g.active) === 1 ? 1 : 0,
+    }));
+    populateGoldsmithSelect();
+    populateCurrentGoldsmithSelect();
+    renderSidebarUser();
+    if (currentView === 'settings') renderTeamRows();
+  } catch (e) {
+    console.warn('Goldsmith load failed', e);
+  }
+}
+
+async function loadClients() {
+  try {
+    clients = await apiFetch('/clients');
+    populateClientSelect();
+  } catch (e) {
+    console.warn('Client load failed', e);
+  }
+}
+
+async function loadStats() {
+  try {
+    const data = await apiFetch('/stats');
+    const overview = data.overview || {};
+    document.getElementById('s-active').textContent = overview.active ?? '—';
+    document.getElementById('s-ready').textContent = overview.ready_for_collection ?? '—';
+    document.getElementById('s-overdue').textContent = overview.overdue ?? '—';
+    document.getElementById('s-revenue').textContent = formatMoney(overview.revenue_mtd);
+
+    const readySub = document.getElementById('s-ready-sub');
+    readySub.textContent = overview.ready_for_collection > 0 ? 'awaiting collection' : 'nothing waiting';
+    readySub.className = 'stat-sub ' + (overview.ready_for_collection > 0 ? 'warn' : 'up');
+
+    const overdueSub = document.getElementById('s-overdue-sub');
+    overdueSub.textContent = overview.overdue > 0 ? 'requires attention' : 'all on schedule';
+    overdueSub.className = 'stat-sub ' + (overview.overdue > 0 ? 'danger' : 'up');
+
+    document.getElementById('nb-all').textContent = overview.active ?? '—';
+    document.getElementById('nb-intake').textContent = overview.intake || '—';
+    const readyBadge = document.getElementById('nb-ready');
+    if (overview.ready_for_collection > 0) {
+      readyBadge.textContent = overview.ready_for_collection;
+      readyBadge.style.display = '';
+    } else {
+      readyBadge.style.display = 'none';
+    }
+  } catch (e) {
+    console.warn('Stats load failed', e);
+  }
+}
+
+function showSkeletons() {
+  const rows = Array.from({ length:5 }, () =>
+    `<tr class="skel-row">
+      ${Array.from({ length:9 }, () => `<td><div class="skeleton" style="height:14px;width:${40 + Math.random() * 50}%"></div></td>`).join('')}
+    </tr>`
+  ).join('');
+  document.getElementById('orders-tbody').innerHTML = rows;
+}
+
+async function loadOrders() {
+  showSkeletons();
+  try {
+    const qs = new URLSearchParams({ status: currentFilter, q: currentSearch, sort: currentSort });
+    const data = await apiFetch(`/orders?${qs}`);
+    allOrders = data.orders || [];
+    renderOrders(allOrders);
+  } catch (e) {
+    document.getElementById('orders-tbody').innerHTML =
+      `<tr class="empty-row"><td colspan="9" class="empty-cell">⚠ Could not load orders — is the server running?</td></tr>`;
+  }
+}
+
+async function refreshData() {
+  await Promise.all([loadStats(), loadOrders()]);
+  toast('Refreshed', 'info');
+}
+
+function renderOrders(orders) {
+  const tbody = document.getElementById('orders-tbody');
+  if (!orders.length) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="9" class="empty-cell">No orders found</td></tr>`;
+    return;
+  }
+
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  tbody.innerHTML = orders.map(order => {
+    const meta = SM[order.status] || SM.intake;
+    const intake = order.received_at ? new Date(order.received_at) : null;
+    const intakeStr = intake ? intake.toLocaleDateString('en-GB', { day:'numeric', month:'short' }) : '—';
+    const due = order.due_date ? new Date(order.due_date) : null;
+    const overdue = due && due < today && !['complete', 'cancelled'].includes(order.status);
+    const dueStr = due ? due.toLocaleDateString('en-GB', { day:'numeric', month:'short' }) : '—';
+
+    return `<tr onclick="openDetail(${order.id})">
+      <td><span class="order-id">${esc(order.order_number)}</span></td>
+      <td>
+        <span class="client-name">${esc(order.client_name)}</span>
+        <span class="client-email">${esc(order.client_email)}</span>
+      </td>
+      <td>
+        <div class="item-desc">${esc(order.item_name)}</div>
+        <div class="item-type">${esc(order.item_type)} · ${esc(order.service_type)}</div>
+      </td>
+      <td><span class="badge ${meta.cls}">${meta.label}</span></td>
+      <td><span style="font-size:10.5px;color:var(--g3)">${esc(order.goldsmith_name || 'Unassigned')}</span></td>
+      <td><span class="due-date">${intakeStr}</span></td>
+      <td><span class="due-date${overdue ? ' due-overdue' : ''}">${dueStr}${overdue ? ' ↑' : ''}</span></td>
+      <td class="price-col">${formatMoney(order.price_estimate)}</td>
+      <td>
+        <div class="row-actions">
+          <div class="icon-btn" title="Edit" onclick="event.stopPropagation();editOrder(${order.id})">✎</div>
+          <div class="icon-btn" title="Delete" onclick="event.stopPropagation();openDelete(${order.id},'${esc(order.order_number)} — ${esc(order.client_name)}')">✕</div>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function setFilter(filter, el) {
+  currentFilter = filter;
+  showOrdersView();
+  document.querySelectorAll('.ftab').forEach(tab => tab.classList.remove('active'));
+  if (el) el.classList.add('active');
+  setActiveOrderNav(filter);
+  loadOrders();
+}
+
+function setNavFilter(filter) {
+  currentFilter = filter;
+  showOrdersView();
+  loadOrders();
+}
+
+function onSearch(value) {
+  currentSearch = value;
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(loadOrders, 280);
+}
+
+function onSort(value) {
+  currentSort = value;
+  loadOrders();
+}
+
+async function openDetail(id) {
+  currentDetailId = id;
+  document.getElementById('detail-bg').classList.add('open');
+  document.getElementById('detail-panel').classList.add('open');
+  document.getElementById('dp-client').textContent = '…';
+  document.getElementById('dp-timeline').innerHTML = '<div style="color:var(--g4);font-size:11px">Loading…</div>';
+
+  try {
+    renderDetailPanel(await apiFetch(`/orders/${id}`));
+  } catch {
+    toast('Failed to load order', 'error');
+  }
+}
+
+function renderDetailPanel(order) {
+  const meta = SM[order.status] || SM.intake;
+  const priorityLabel = order.priority === 'high' ? 'Rush' : order.priority === 'low' ? 'Low' : 'Standard';
+  const priorityClass = order.priority === 'high' ? 'pri-high' : order.priority === 'low' ? 'pri-low' : 'pri-med';
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  document.getElementById('dp-id').textContent = order.order_number;
+  document.getElementById('dp-client').textContent = order.client_name;
+  document.getElementById('dp-email').textContent = order.client_email;
+  document.getElementById('dp-badge').outerHTML = `<span id="dp-badge" class="badge ${meta.cls}">${meta.label}</span>`;
+  document.getElementById('dp-pri-dot').className = `pri-dot ${priorityClass}`;
+  document.getElementById('dp-pri-lbl').textContent = priorityLabel;
+
+  const currentStep = STATUS_STEPS.indexOf(order.status);
+  document.getElementById('dp-progress').innerHTML = STATUS_STEPS.map((step, idx) =>
+    `<div class="ps ${idx < currentStep ? 'done' : idx === currentStep ? 'current' : ''}"></div>`
+  ).join('');
+
+  document.getElementById('dp-item').textContent = order.item_name;
+  document.getElementById('dp-type').textContent = order.item_type;
+  document.getElementById('dp-material').textContent = order.item_material || '—';
+  document.getElementById('dp-condition').textContent = order.item_condition || '—';
+  document.getElementById('dp-service').textContent = order.service_type;
+  document.getElementById('dp-goldsmith').textContent = order.goldsmith_name || 'Unassigned';
+  document.getElementById('dp-received').textContent = fmtDate(order.received_at);
+  document.getElementById('dp-due').textContent = order.due_date
+    ? (() => {
+        const due = new Date(order.due_date);
+        const overdue = due < today && !['complete', 'cancelled'].includes(order.status);
+        return fmtDate(order.due_date) + (overdue ? ' — OVERDUE' : '');
+      })()
+    : '—';
+  document.getElementById('dp-price').textContent = formatMoney(order.price_estimate);
+
+  const notesSection = document.getElementById('dp-notes-sec');
+  if (order.internal_notes) {
+    document.getElementById('dp-notes').textContent = order.internal_notes;
+    notesSection.style.display = '';
+  } else {
+    notesSection.style.display = 'none';
+  }
+
+  const timeline = order.timeline || [];
+  document.getElementById('dp-timeline').innerHTML = timeline.length ? timeline.map((entry, idx) => {
+    const isLast = idx === timeline.length - 1;
+    return `<div class="tl-item">
+      <div class="tl-dot-wrap">
+        <div class="tl-dot ${isLast ? 'current' : 'done'}"></div>
+        <div class="tl-line"></div>
+      </div>
+      <div style="flex:1">
+        <div class="tl-event">${esc(entry.event)}</div>
+        ${entry.note ? `<div class="tl-note">${esc(entry.note)}</div>` : ''}
+        <div class="tl-time">${fmtDateTime(entry.created_at)}${entry.goldsmith_name ? ' · ' + esc(entry.goldsmith_name) : ''}</div>
+      </div>
+    </div>`;
+  }).join('') : '<div style="color:var(--g4);font-size:10.5px">No activity yet.</div>';
+}
+
+async function addNote() {
+  const input = document.getElementById('add-note-input');
+  const note = input.value.trim();
+  if (!note || !currentDetailId) return;
+  try {
+    await apiFetch(`/orders/${currentDetailId}/timeline`, {
+      method:'POST',
+      body:{
+        event: note,
+        goldsmith_id: appSettings.current_goldsmith_id || null,
+      },
+    });
+    input.value = '';
+    renderDetailPanel(await apiFetch(`/orders/${currentDetailId}`));
+    toast('Note added', 'success');
+  } catch (e) {
+    toast(e.message, 'error');
+  }
+}
+
+function closeDetail(e) {
+  if (e.target === document.getElementById('detail-bg')) closeDetailPanel();
+}
+
+function closeDetailPanel() {
+  document.getElementById('detail-bg').classList.remove('open');
+  document.getElementById('detail-panel').classList.remove('open');
+  currentDetailId = null;
+}
+
+function openStatusModal() {
+  if (!currentDetailId) return;
+  const order = allOrders.find(item => item.id === currentDetailId);
+  if (!order) return;
+
+  document.getElementById('sm-sub').textContent = `${order.order_number} — ${order.client_name}`;
+  document.getElementById('sm-note').value = '';
+  selectedNewStatus = null;
+  statusChangeId = currentDetailId;
+
+  const statuses = [
+    { k:'assessment', d:'Sent for review' },
+    { k:'approved', d:'Quote approved' },
+    { k:'progress', d:'Work started' },
+    { k:'qc', d:'QC check' },
+    { k:'ready', d:'Ready to collect' },
+    { k:'complete', d:'Collected' },
+    { k:'hold', d:'Pause order' },
+    { k:'cancelled', d:'Cancel' },
+  ];
+
+  document.getElementById('status-grid').innerHTML = statuses.map(status =>
+    `<div class="status-opt" data-status="${status.k}" onclick="selectStatus(this,'${status.k}')">
+      <span class="badge ${SM[status.k]?.cls || ''}" style="pointer-events:none">${SM[status.k]?.label || status.k}</span>
+      <span class="status-opt-desc">${status.d}</span>
+    </div>`
+  ).join('');
+
+  document.getElementById('status-modal').classList.add('open');
+}
+
+function selectStatus(el, status) {
+  document.querySelectorAll('.status-opt').forEach(node => node.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedNewStatus = status;
+}
+
+async function confirmStatusChange() {
+  if (!selectedNewStatus || !statusChangeId) {
+    toast('Select a status', 'info');
+    return;
+  }
+
+  try {
+    await apiFetch(`/orders/${statusChangeId}/status`, {
+      method:'PATCH',
+      body:{
+        status: selectedNewStatus,
+        note: document.getElementById('sm-note').value.trim(),
+      },
+    });
+    closeStatusModal();
+    toast(`Status updated to ${SM[selectedNewStatus]?.label}`, 'success');
+    await Promise.all([loadStats(), loadOrders()]);
+    if (currentDetailId === statusChangeId) renderDetailPanel(await apiFetch(`/orders/${currentDetailId}`));
+  } catch (e) {
+    toast(e.message, 'error');
+  }
+}
+
+function closeStatusModal() {
+  document.getElementById('status-modal').classList.remove('open');
+}
+
+async function advanceStatus() {
+  if (!currentDetailId) return;
+  const order = allOrders.find(item => item.id === currentDetailId);
+  if (!order) return;
+  const next = SM[order.status]?.next;
+  if (!next) {
+    toast('Order is already at final status', 'info');
+    return;
+  }
+
+  try {
+    await apiFetch(`/orders/${currentDetailId}/status`, {
+      method:'PATCH',
+      body:{ status: next },
+    });
+    toast(`→ ${SM[next]?.label}`, 'success');
+    await Promise.all([loadStats(), loadOrders()]);
+    renderDetailPanel(await apiFetch(`/orders/${currentDetailId}`));
+  } catch (e) {
+    toast(e.message, 'error');
+  }
+}
+
+function getDefaultDueDate(priority) {
+  const days = Number(appSettings.default_due_days?.[priority] ?? DEFAULT_SETTINGS.default_due_days[priority]);
+  const date = new Date();
+  date.setHours(0,0,0,0);
+  date.setDate(date.getDate() + days);
+  return date.toISOString().slice(0, 10);
+}
+
+function markDueDateManual() {
+  document.getElementById('f-due').dataset.manual = '1';
+}
+
+function applySuggestedDueDate(force = false) {
+  const dueInput = document.getElementById('f-due');
+  if (!force && dueInput.dataset.manual === '1' && dueInput.value) return;
+  const priority = document.getElementById('f-priority').value || appSettings.default_priority;
+  dueInput.value = getDefaultDueDate(priority);
+  dueInput.dataset.manual = '0';
+}
+
+function handlePriorityChange() {
+  if (!editingOrderId && document.getElementById('f-due').dataset.manual !== '1') {
+    applySuggestedDueDate(true);
+  }
+}
+
+function clearOrderForm() {
+  ['f-client','f-item-name','f-condition','f-item-desc','f-price','f-notes'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('f-goldsmith').value = appSettings.current_goldsmith_id ? String(appSettings.current_goldsmith_id) : '';
+  document.getElementById('f-item-type').value = appSettings.item_types[0] || DEFAULT_SETTINGS.item_types[0];
+  document.getElementById('f-service').value = appSettings.service_types[0] || DEFAULT_SETTINGS.service_types[0];
+  document.getElementById('f-material').value = '';
+  document.getElementById('f-priority').value = appSettings.default_priority || DEFAULT_SETTINGS.default_priority;
+  document.getElementById('f-due').value = '';
+  document.getElementById('f-due').dataset.manual = '0';
+  applySuggestedDueDate(true);
+}
+
+function openNewOrder() {
+  editingOrderId = null;
+  document.getElementById('om-title').textContent = 'New Service Order';
+  document.getElementById('om-sub').textContent = 'Workshop intake form';
+  document.getElementById('om-save-btn').textContent = 'Create Order →';
+  clearOrderForm();
+  document.getElementById('order-modal').classList.add('open');
+}
+
+async function editOrder(id) {
+  editingOrderId = id;
+  document.getElementById('om-title').textContent = 'Edit Order';
+  document.getElementById('om-save-btn').textContent = 'Save Changes →';
+
+  try {
+    const order = await apiFetch(`/orders/${id}`);
+    ensureOptionPresent('f-item-type', order.item_type, order.item_type);
+    ensureOptionPresent('f-material', order.item_material, order.item_material);
+    ensureOptionPresent('f-service', order.service_type, order.service_type);
+    ensureOptionPresent('f-goldsmith', order.goldsmith_id, order.goldsmith_name || 'Assigned');
+
+    document.getElementById('f-client').value = order.client_id || '';
+    document.getElementById('f-item-name').value = order.item_name || '';
+    document.getElementById('f-item-type').value = order.item_type || '';
+    document.getElementById('f-material').value = order.item_material || '';
+    document.getElementById('f-condition').value = order.item_condition || '';
+    document.getElementById('f-item-desc').value = order.item_description || '';
+    document.getElementById('f-service').value = order.service_type || '';
+    document.getElementById('f-priority').value = order.priority || 'med';
+    document.getElementById('f-goldsmith').value = order.goldsmith_id || '';
+    document.getElementById('f-due').value = order.due_date || '';
+    document.getElementById('f-due').dataset.manual = '1';
+    document.getElementById('f-price').value = order.price_estimate || '';
+    document.getElementById('f-notes').value = order.internal_notes || '';
+    document.getElementById('order-modal').classList.add('open');
+  } catch {
+    toast('Failed to load order', 'error');
+  }
+}
+
+function editCurrentOrder() {
+  if (currentDetailId) editOrder(currentDetailId);
+}
+
+async function saveOrder() {
+  const clientId = document.getElementById('f-client').value;
+  const itemName = document.getElementById('f-item-name').value.trim();
+  const serviceType = document.getElementById('f-service').value;
+
+  if (!clientId) {
+    toast('Please select a client', 'error');
+    return;
+  }
+  if (!itemName) {
+    toast('Item name is required', 'error');
+    return;
+  }
+
+  const payload = {
+    client_id: parseInt(clientId, 10),
+    goldsmith_id: document.getElementById('f-goldsmith').value || null,
+    item_name: itemName,
+    item_type: document.getElementById('f-item-type').value,
+    item_material: document.getElementById('f-material').value,
+    item_condition: document.getElementById('f-condition').value,
+    item_description: document.getElementById('f-item-desc').value,
+    service_type: serviceType,
+    internal_notes: document.getElementById('f-notes').value,
+    priority: document.getElementById('f-priority').value,
+    price_estimate: parseFloat(document.getElementById('f-price').value) || null,
+    due_date: document.getElementById('f-due').value || null,
+    currency: getCurrencyCode(),
+  };
+
+  const btn = document.getElementById('om-save-btn');
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+
+  try {
+    if (editingOrderId) {
+      await apiFetch(`/orders/${editingOrderId}`, { method:'PUT', body: payload });
+      toast('Order updated', 'success');
+    } else {
+      await apiFetch('/orders', { method:'POST', body: payload });
+      toast('Order created', 'success');
+    }
+    closeOrderModal();
+    await Promise.all([loadStats(), loadOrders()]);
+  } catch (e) {
+    toast(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = editingOrderId ? 'Save Changes →' : 'Create Order →';
+  }
+}
+
+function closeOrderModal() {
+  document.getElementById('order-modal').classList.remove('open');
+  editingOrderId = null;
+}
+
+function openNewClient(returnToOrder = false) {
+  clientModalReturnToOrder = returnToOrder;
+  ['cf-name','cf-phone','cf-email','cf-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('cf-contact').value = appSettings.contact_methods[0] || 'email';
+  document.getElementById('client-modal').classList.add('open');
+}
+
+async function saveClient() {
+  const name = document.getElementById('cf-name').value.trim();
+  const email = document.getElementById('cf-email').value.trim();
+  if (!name || !email) {
+    toast('Name and email required', 'error');
+    return;
+  }
+
+  try {
+    const client = await apiFetch('/clients', {
+      method:'POST',
+      body:{
+        name,
+        email,
+        phone: document.getElementById('cf-phone').value.trim(),
+        preferred_contact: document.getElementById('cf-contact').value,
+        notes: document.getElementById('cf-notes').value.trim(),
+      },
+    });
+    clients.push(client);
+    populateClientSelect();
+    if (clientModalReturnToOrder) document.getElementById('f-client').value = client.id;
+    closeClientModal();
+    toast(`Client "${client.name}" added`, 'success');
+  } catch (e) {
+    toast(e.message, 'error');
+  }
+}
+
+function closeClientModal() {
+  document.getElementById('client-modal').classList.remove('open');
+}
+
+function populateSettingsForm() {
+  document.getElementById('st-workshop-name').value = appSettings.workshop_name || '';
+  document.getElementById('st-workshop-subtitle').value = appSettings.workshop_subtitle || '';
+  document.getElementById('st-currency-code').value = getCurrencyCode();
+  document.getElementById('st-currency-locale').value = getCurrencyLocale();
+  document.getElementById('st-refresh-seconds').value = appSettings.dashboard_refresh_seconds;
+  document.getElementById('st-default-sort').value = appSettings.default_sort;
+  document.getElementById('st-default-priority').value = appSettings.default_priority;
+  document.getElementById('st-due-high').value = appSettings.default_due_days.high;
+  document.getElementById('st-due-med').value = appSettings.default_due_days.med;
+  document.getElementById('st-due-low').value = appSettings.default_due_days.low;
+  syncCatalogDraftsFromSettings();
+  renderCatalogEditors();
+  populateCurrentGoldsmithSelect();
+}
+
+function resetSettingsForm() {
+  populateSettingsForm();
+  renderTeamRows();
+  toast('Settings reset', 'info');
+}
+
+function buildSettingsPayload() {
+  commitPendingCatalogInputs();
+  return {
+    workshop_name: document.getElementById('st-workshop-name').value.trim(),
+    workshop_subtitle: document.getElementById('st-workshop-subtitle').value.trim(),
+    currency_code: document.getElementById('st-currency-code').value.trim().toUpperCase(),
+    currency_locale: document.getElementById('st-currency-locale').value.trim(),
+    dashboard_refresh_seconds: Number(document.getElementById('st-refresh-seconds').value || 30),
+    default_sort: document.getElementById('st-default-sort').value,
+    default_priority: document.getElementById('st-default-priority').value,
+    current_goldsmith_id: document.getElementById('st-current-goldsmith').value || null,
+    default_due_days: {
+      high: Number(document.getElementById('st-due-high').value || 0),
+      med: Number(document.getElementById('st-due-med').value || 0),
+      low: Number(document.getElementById('st-due-low').value || 0),
+    },
+    item_types: catalogDrafts.item_types || [],
+    item_materials: catalogDrafts.item_materials || [],
+    service_types: catalogDrafts.service_types || [],
+    contact_methods: catalogDrafts.contact_methods || [],
+  };
+}
+
+async function saveAllSettings() {
+  if (!isCurrentOperatorAdmin()) {
+    toast('Settings are available to Admin users only', 'error');
+    return;
+  }
+  try {
+    const saved = await apiFetch('/settings', { method:'PUT', body: buildSettingsPayload() });
+    appSettings = normalizeSettings(saved);
+    applyShellSettings({ resetSort:true });
+    populateSettingsForm();
+    syncSettingsAccess({ notify: true });
+    await Promise.all([loadStats(), loadOrders()]);
+    toast('Settings saved', 'success');
+  } catch (e) {
+    toast(e.message, 'error');
+  }
+}
+
+function syncTeamDraftsFromDom() {
+  const rows = document.querySelectorAll('#team-list .team-row');
+  if (!rows.length) return;
+  teamDrafts = Array.from(rows).map(row => ({
+    id: row.dataset.id ? Number(row.dataset.id) : null,
+    name: row.querySelector('[data-field="name"]').value.trim(),
+    role: row.querySelector('[data-field="role"]').value.trim(),
+    access_level: row.querySelector('[data-field="access_level"]').value,
+    email: row.querySelector('[data-field="email"]').value.trim(),
+    active: row.querySelector('[data-field="active"]').checked ? 1 : 0,
+  }));
+}
+
+function renderTeamRows() {
+  const list = document.getElementById('team-list');
+  const canManage = isCurrentOperatorAdmin();
+  const adminNote = document.getElementById('team-admin-note');
+  const addBtn = document.getElementById('team-add-btn');
+  const saveBtn = document.getElementById('team-save-btn');
+
+  adminNote.style.display = canManage ? 'none' : '';
+  addBtn.disabled = !canManage;
+  saveBtn.disabled = !canManage;
+
+  if (!teamDrafts.length) {
+    list.innerHTML = '<div class="team-empty">No team members yet. Add one to enable order assignment.</div>';
+    return;
+  }
+
+  list.innerHTML = teamDrafts.map((row, index) => `
+    <div class="team-row" data-id="${row.id || ''}">
+      <div class="ffield">
+        <label class="flbl">Name</label>
+        <input class="finput" data-field="name" value="${esc(row.name || '')}" placeholder="Mia Larsen" ${canManage ? '' : 'disabled'}>
+      </div>
+      <div class="ffield">
+        <label class="flbl">Role</label>
+        <input class="finput" data-field="role" value="${esc(row.role || 'Goldsmith')}" placeholder="Goldsmith" ${canManage ? '' : 'disabled'}>
+      </div>
+      <div class="ffield">
+        <label class="flbl">User Level</label>
+        <select class="fselect" data-field="access_level" ${canManage ? '' : 'disabled'}>
+          ${USER_LEVELS.map(level => `<option value="${level.value}" ${(row.access_level || 'staff') === level.value ? 'selected' : ''}>${level.label}</option>`).join('')}
+        </select>
+      </div>
+      <div class="ffield">
+        <label class="flbl">Email</label>
+        <input class="finput" data-field="email" value="${esc(row.email || '')}" placeholder="name@tomwood.no" ${canManage ? '' : 'disabled'}>
+      </div>
+      <label class="team-toggle">
+        <input type="checkbox" data-field="active" ${row.active ? 'checked' : ''} ${canManage ? '' : 'disabled'}>
+        Active
+      </label>
+      <div class="team-delete-wrap">
+        <button
+          class="icon-btn team-delete-btn"
+          type="button"
+          title="Delete user"
+          onclick="openTeamDelete(${index})"
+          ${canManage ? '' : 'disabled'}
+        >🗑</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addTeamRow() {
+  if (!isCurrentOperatorAdmin()) {
+    toast('Only Admin users can add team members', 'error');
+    return;
+  }
+  syncTeamDraftsFromDom();
+  teamDrafts.push({ id:null, name:'', role:'Goldsmith', access_level:'staff', email:'', active:1 });
+  renderTeamRows();
+}
+
+function openTeamDelete(index) {
+  if (!isCurrentOperatorAdmin()) {
+    toast('Only Admin users can manage team members', 'error');
+    return;
+  }
+
+  syncTeamDraftsFromDom();
+  const row = teamDrafts[index];
+  if (!row) return;
+
+  deletingTeamIndex = index;
+  document.getElementById('tdm-label').textContent = row.name || 'Unnamed user';
+  document.getElementById('tdm-copy').textContent = row.id
+    ? 'To continue, answer both confirmation checks below.'
+    : 'This user has not been saved yet. Answer both confirmation checks below to remove the draft row.';
+  document.getElementById('tdm-name-check').value = '';
+  document.getElementById('tdm-delete-check').value = '';
+  document.getElementById('team-delete-modal').classList.add('open');
+}
+
+function closeTeamDeleteModal() {
+  document.getElementById('team-delete-modal').classList.remove('open');
+  document.getElementById('tdm-name-check').value = '';
+  document.getElementById('tdm-delete-check').value = '';
+  deletingTeamIndex = null;
+}
+
+async function confirmTeamDelete() {
+  if (deletingTeamIndex === null) return;
+
+  syncTeamDraftsFromDom();
+  const row = teamDrafts[deletingTeamIndex];
+  if (!row) {
+    closeTeamDeleteModal();
+    return;
+  }
+
+  const nameCheck = document.getElementById('tdm-name-check').value.trim();
+  const deleteCheck = document.getElementById('tdm-delete-check').value.trim();
+
+  if (nameCheck !== (row.name || '').trim()) {
+    toast('Type the exact full name to confirm deletion', 'error');
+    return;
+  }
+  if (deleteCheck !== 'DELETE') {
+    toast('Type DELETE in capitals to confirm deletion', 'error');
+    return;
+  }
+
+  if (!row.id) {
+    teamDrafts.splice(deletingTeamIndex, 1);
+    closeTeamDeleteModal();
+    renderTeamRows();
+    toast('Draft user removed', 'success');
+    return;
+  }
+
+  try {
+    await apiFetch(`/goldsmiths/${row.id}`, {
+      method: 'DELETE',
+      body: { acting_goldsmith_id: appSettings.current_goldsmith_id || null },
+    });
+    closeTeamDeleteModal();
+    await loadGoldsmiths();
+    populateSettingsForm();
+    toast('User deleted', 'success');
+  } catch (e) {
+    toast(e.message, 'error');
+  }
+}
+
+async function saveTeam() {
+  if (!isCurrentOperatorAdmin()) {
+    toast('Only Admin users can manage team members', 'error');
+    return;
+  }
+  syncTeamDraftsFromDom();
+
+  for (const row of teamDrafts) {
+    if (!row.name) {
+      toast('Every team row needs a name', 'error');
+      return;
+    }
+  }
+
+  try {
+    for (const row of teamDrafts) {
+      const payload = {
+        acting_goldsmith_id: appSettings.current_goldsmith_id || null,
+        name: row.name,
+        role: row.role || 'Goldsmith',
+        access_level: row.access_level || 'staff',
+        email: row.email || null,
+        active: !!row.active,
+      };
+      if (row.id) {
+        await apiFetch(`/goldsmiths/${row.id}`, { method:'PUT', body: payload });
+      } else {
+        await apiFetch('/goldsmiths', { method:'POST', body: payload });
+      }
+    }
+    await loadGoldsmiths();
+    populateSettingsForm();
+    toast('Team updated', 'success');
+  } catch (e) {
+    toast(e.message, 'error');
+  }
+}
+
+function openDelete(id, label) {
+  deletingOrderId = id;
+  document.getElementById('dm-label').textContent = label;
+  document.getElementById('delete-modal').classList.add('open');
+}
+
+function openDeleteFromDetail() {
+  if (!currentDetailId) return;
+  const order = allOrders.find(item => item.id === currentDetailId);
+  if (!order) return;
+  openDelete(order.id, `${order.order_number} — ${order.client_name}`);
+}
+
+async function confirmDelete() {
+  if (!deletingOrderId) return;
+  try {
+    await apiFetch(`/orders/${deletingOrderId}`, { method:'DELETE' });
+    closeDeleteModal();
+    closeDetailPanel();
+    toast('Order deleted', 'success');
+    await Promise.all([loadStats(), loadOrders()]);
+  } catch (e) {
+    toast(e.message, 'error');
+  }
+}
+
+function closeDeleteModal() {
+  document.getElementById('delete-modal').classList.remove('open');
+  deletingOrderId = null;
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  ['order-modal','client-modal','status-modal','delete-modal','team-delete-modal'].forEach(id =>
+    document.getElementById(id).classList.remove('open')
+  );
+  closeDetailPanel();
+  deletingTeamIndex = null;
+});
+
+function bindStaticEvents() {
+  document.getElementById('f-priority').addEventListener('change', handlePriorityChange);
+  document.getElementById('f-due').addEventListener('input', markDueDateManual);
+}
+
+async function init() {
+  bindStaticEvents();
+  await checkApi();
+  await bootAuthenticatedApp(true);
+}
+
+init();
+</script>
+</body>
+</html>

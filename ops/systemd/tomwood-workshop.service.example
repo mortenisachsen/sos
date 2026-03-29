@@ -1,0 +1,19 @@
+[Unit]
+Description=Tom Wood Workshop Service Order System
+After=network.target
+
+[Service]
+Type=simple
+User=tomwood
+Group=tomwood
+WorkingDirectory=/srv/tomwood-workshop
+Environment=PYTHONUNBUFFERED=1
+EnvironmentFile=/srv/tomwood-workshop/.env
+ExecStart=/srv/tomwood-workshop/.venv/bin/python /srv/tomwood-workshop/server.py
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+
