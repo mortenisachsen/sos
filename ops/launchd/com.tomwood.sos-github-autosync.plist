@@ -8,7 +8,7 @@
   <key>ProgramArguments</key>
   <array>
     <string>/bin/sh</string>
-    <string>/Users/mortenisachsen/Documents/TW_Service_Order_System/ops/scripts/github_autosync.sh</string>
+    <string>/Users/mortenisachsen/Library/Application Support/TomWoodGitHubAutosync/github_autosync.sh</string>
   </array>
 
   <key>EnvironmentVariables</key>
