@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0f2d2f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Bangkok for To</title>
+  <style>
+    :root {
+      --bg: #f8f2e8;
+      --card: rgba(255, 249, 240, 0.84);
+      --card-strong: rgba(255, 248, 237, 0.96);
+      --ink: #1f1e1a;
+      --muted: #655f56;
+      --line: rgba(31, 30, 26, 0.1);
+      --teal: #0f2d2f;
+      --teal-soft: #1d5b57;
+      --gold: #efb44d;
+      --coral: #d56d49;
+      --rose: #8f3d36;
+      --sand: #edd7b0;
+      --shadow: 0 28px 80px rgba(20, 23, 24, 0.12);
+      --shadow-soft: 0 14px 36px rgba(20, 23, 24, 0.08);
+      --radius-xl: 30px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 999px;
+      --sans: "Avenir Next", "Segoe UI", sans-serif;
+      --serif: "Iowan Old Style", "Palatino Linotype", serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--sans);
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(239, 180, 77, 0.26), transparent 34%),
+        radial-gradient(circle at 90% 12%, rgba(15, 45, 47, 0.16), transparent 30%),
+        linear-gradient(180deg, #fff7eb 0%, #f4ebdf 48%, #efe6db 100%);
+      overflow-x: hidden;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: auto;
+      width: 32rem;
+      height: 32rem;
+      border-radius: 50%;
+      filter: blur(24px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::before {
+      top: -12rem;
+      right: -10rem;
+      background: rgba(213, 109, 73, 0.15);
+    }
+
+    body::after {
+      left: -12rem;
+      bottom: -14rem;
+      background: rgba(15, 45, 47, 0.14);
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      width: min(1120px, calc(100vw - 28px));
+      margin: 0 auto;
+      padding: calc(env(safe-area-inset-top) + 18px) 0 calc(env(safe-area-inset-bottom) + 40px);
+    }
+
+    .topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 18px;
+      font-size: 0.84rem;
+      color: var(--muted);
+    }
+
+    .topline strong {
+      color: var(--teal);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 0.74rem;
+    }
+
+    .save-note {
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.58);
+      border: 1px solid rgba(15, 45, 47, 0.08);
+      backdrop-filter: blur(12px);
+      text-decoration: none;
+    }
+
+    .card {
+      background: var(--card);
+      backdrop-filter: blur(18px);
+      border: 1px solid rgba(255, 255, 255, 0.65);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.55fr 0.95fr;
+      gap: 22px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      background:
+        linear-gradient(140deg, rgba(255, 251, 244, 0.96), rgba(255, 244, 228, 0.92)),
+        linear-gradient(135deg, rgba(15, 45, 47, 0.08), transparent 45%);
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--teal-soft);
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      margin: 0;
+      font-family: var(--serif);
+      line-height: 0.98;
+      letter-spacing: -0.02em;
+    }
+
+    h1 {
+      font-size: clamp(2.65rem, 5vw, 4.8rem);
+      max-width: 11ch;
+    }
+
+    .lede {
+      margin: 18px 0 0;
+      max-width: 46rem;
+      font-size: 1.02rem;
+      line-height: 1.72;
+      color: var(--muted);
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 0.87rem;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.62);
+      border: 1px solid rgba(31, 30, 26, 0.07);
+    }
+
+    .hero-side {
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+
+    .info-tile {
+      padding: 18px;
+      border-radius: var(--radius-lg);
+      background: rgba(15, 45, 47, 0.94);
+      color: #fdf6eb;
+    }
+
+    .info-tile.alt {
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--ink);
+      border: 1px solid rgba(31, 30, 26, 0.08);
+    }
+
+    .tile-label {
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: inherit;
+      opacity: 0.72;
+    }
+
+    .tile-value {
+      margin-top: 10px;
+      font-size: 1.04rem;
+      line-height: 1.55;
+    }
+
+    .tile-value strong {
+      color: var(--gold);
+    }
+
+    .jumpbar {
+      position: sticky;
+      top: calc(env(safe-area-inset-top) + 10px);
+      z-index: 4;
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      margin: 18px 0 0;
+      padding: 10px 6px 4px;
+      scrollbar-width: none;
+    }
+
+    .jumpbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .jumpbar a,
+    .toggle button {
+      flex: 0 0 auto;
+      border: 0;
+      font: inherit;
+      cursor: pointer;
+      text-decoration: none;
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--teal);
+      font-size: 0.92rem;
+      font-weight: 700;
+      border: 1px solid rgba(15, 45, 47, 0.09);
+      box-shadow: 0 12px 24px rgba(15, 45, 47, 0.08);
+    }
+
+    .stack {
+      display: grid;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .section-card {
+      padding: 24px;
+    }
+
+    .section-head {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: end;
+      margin-bottom: 18px;
+    }
+
+    .section-head p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      max-width: 44rem;
+    }
+
+    h2 {
+      font-size: clamp(2rem, 3vw, 2.8rem);
+    }
+
+    .principles {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .principle {
+      padding: 16px;
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid var(--line);
+    }
+
+    .principle h3 {
+      font-size: 1.15rem;
+      margin-bottom: 8px;
+    }
+
+    .principle p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.96rem;
+      line-height: 1.55;
+    }
+
+    .day {
+      padding: 22px;
+      display: grid;
+      gap: 20px;
+    }
+
+    .day-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .day-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .day-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 11px;
+      border-radius: var(--radius-sm);
+      background: rgba(15, 45, 47, 0.08);
+      color: var(--teal);
+      font-weight: 700;
+    }
+
+    .stress {
+      min-width: 180px;
+      padding: 16px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(180deg, rgba(15, 45, 47, 0.94), rgba(19, 69, 70, 0.94));
+      color: #fff6ea;
+    }
+
+    .stress small {
+      display: block;
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      opacity: 0.78;
+    }
+
+    .stress strong {
+      display: block;
+      margin-top: 8px;
+      font-size: 1.5rem;
+      font-family: var(--serif);
+      letter-spacing: 0;
+    }
+
+    .meter {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 5px;
+      margin-top: 12px;
+    }
+
+    .meter span {
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    .meter span.on {
+      background: linear-gradient(90deg, var(--gold), #ffd899);
+    }
+
+    .timeline {
+      display: grid;
+      gap: 12px;
+    }
+
+    .stop {
+      display: grid;
+      grid-template-columns: 110px minmax(0, 1fr);
+      gap: 14px;
+      padding: 14px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .stop:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .stop-time {
+      font-size: 0.8rem;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--teal-soft);
+    }
+
+    .stop-content h4 {
+      font-size: 1.32rem;
+      margin-bottom: 8px;
+    }
+
+    .stop-content p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .link-row,
+    .tag-row,
+    .toggle {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .action {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 13px;
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid rgba(15, 45, 47, 0.1);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--teal);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      background: rgba(239, 180, 77, 0.16);
+      color: #7a5312;
+      font-size: 0.86rem;
+      font-weight: 700;
+    }
+
+    .swap-box {
+      padding: 16px;
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, 0.74);
+      border: 1px solid var(--line);
+    }
+
+    .swap-box p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      line-height: 1.58;
+    }
+
+    .venue-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .venue {
+      padding: 18px;
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, 0.74);
+      border: 1px solid var(--line);
+    }
+
+    .venue strong {
+      display: block;
+      font-size: 1.08rem;
+      margin-bottom: 8px;
+    }
+
+    .venue p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.58;
+      font-size: 0.94rem;
+    }
+
+    .mini-note {
+      margin-top: 8px;
+      font-size: 0.84rem;
+      color: var(--teal-soft);
+      font-weight: 700;
+    }
+
+    .day5-weekday,
+    .day5-weekend {
+      display: none;
+    }
+
+    body[data-day5-mode="weekend"] .day5-weekend,
+    body[data-day5-mode="weekday"] .day5-weekday {
+      display: block;
+    }
+
+    body[data-day5-mode="weekend"] [data-mode="weekend"],
+    body[data-day5-mode="weekday"] [data-mode="weekday"] {
+      background: var(--teal);
+      color: #fff6ea;
+      border-color: transparent;
+    }
+
+    .sources {
+      display: grid;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.62;
+    }
+
+    .sources a {
+      color: var(--teal);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 0.15em;
+    }
+
+    .footer-note {
+      padding: 18px 20px;
+      border-radius: var(--radius-lg);
+      background: rgba(15, 45, 47, 0.95);
+      color: rgba(255, 246, 234, 0.88);
+      font-size: 0.93rem;
+      line-height: 1.58;
+    }
+
+    .fade-up {
+      opacity: 0;
+      transform: translateY(16px);
+      animation: fade-up 0.7s ease forwards;
+    }
+
+    .fade-up:nth-child(2) { animation-delay: 0.05s; }
+    .fade-up:nth-child(3) { animation-delay: 0.1s; }
+    .fade-up:nth-child(4) { animation-delay: 0.15s; }
+    .fade-up:nth-child(5) { animation-delay: 0.2s; }
+    .fade-up:nth-child(6) { animation-delay: 0.25s; }
+
+    @keyframes fade-up {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 980px) {
+      .hero,
+      .principles,
+      .venue-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .hero-side {
+        grid-column: 1 / -1;
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        width: min(100vw - 18px, 100%);
+      }
+
+      .topline {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .hero,
+      .principles,
+      .venue-grid,
+      .hero-side,
+      .day-head {
+        grid-template-columns: 1fr;
+      }
+
+      .section-card,
+      .hero {
+        padding: 20px;
+      }
+
+      h1 {
+        max-width: 9ch;
+      }
+
+      .stop {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .stress {
+        min-width: 0;
+      }
+    }
+  </style>
+</head>
+<body data-day5-mode="weekend">
+  <main class="page">
+    <div class="topline fade-up">
+      <div><strong>Bangkok for to</strong> bygget på itineraries fra side 15 i PDF-en, trimmet for shopping, mat, arkitektur og moderne kunst.</div>
+      <a class="save-note" href="#iphone">iPhone-bruk: trykk her</a>
+    </div>
+
+    <section class="hero card fade-up">
+      <div>
+        <p class="eyebrow">Oppdatert onsdag 22. juli 2026</p>
+        <h1>Bangkok, gjort klar for deg og datteren din.</h1>
+        <p class="lede">
+          Dette er en mer brukbar, mer mobil og mer dere-versjon av guiden: færre tilfeldige omveier,
+          tydeligere dagsflyt, hardere shopping-fokus, bedre kunststopp, smartere pauser og direkte
+          Apple Maps-lenker så dere kan bruke siden live ute i byen.
+        </p>
+        <div class="pill-row">
+          <span class="pill">Siam + EM District for shopping</span>
+          <span class="pill">Song Wat + Talat Noi for mur, smug og karakter</span>
+          <span class="pill">BACC + 100 Tonson + MOCA for samtidskunst</span>
+          <span class="pill">Planlegg ute, kjøl ned inne</span>
+        </div>
+      </div>
+
+      <div class="hero-side">
+        <div class="info-tile">
+          <div class="tile-label">Kjapp strategi</div>
+          <div class="tile-value">
+            Velg <strong>ett tungt shoppingområde</strong> eller <strong>ett stort nabolag</strong> per dag.
+            Bangkok straffer overambisjon med varme, kø og humørsvingninger.
+          </div>
+        </div>
+        <div class="info-tile alt">
+          <div class="tile-label">Beste transport</div>
+          <div class="tile-value">
+            BTS for fart, taxi for AC-dørsprang, og river ferry når dere gjør gamlebyen,
+            Talat Noi eller Song Wat.
+          </div>
+        </div>
+        <div class="info-tile alt">
+          <div class="tile-label">Bra å vite</div>
+          <div class="tile-value">
+            Chatuchak er bonus for helg. Sukhumvit blir fort mye. Gamlebyen og Chinatown funker
+            best når dere går sakte og stopper ofte.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <nav class="jumpbar fade-up" aria-label="Hopp til seksjon">
+      <a href="#gameplan">Gameplan</a>
+      <a href="#day1">Dag 1</a>
+      <a href="#day2">Dag 2</a>
+      <a href="#day3">Dag 3</a>
+      <a href="#day4">Dag 4</a>
+      <a href="#day5">Dag 5</a>
+      <a href="#favorites">Favoritter</a>
+      <a href="#sources">Kilder</a>
+    </nav>
+
+    <div class="stack">
+      <section class="section-card card fade-up" id="gameplan">
+        <div class="section-head">
+          <div>
+            <h2>Kjapp gameplan</h2>
+          </div>
+          <p>
+            Grunntanken fra PDF-ens side 15 er beholdt: myk ankomst, en tung shoppingdag,
+            en elv/old city-dag, en Sukhumvit-dag og en “try somewhere else”-dag. Jeg har bare gjort den
+            mer presis for deres smak og mer realistisk for iPhone-bruk.
+          </p>
+        </div>
+        <div class="principles">
+          <div class="principle">
+            <h3>1. Kjøp tid med AC</h3>
+            <p>Malls, museumspauser og lange lunsjer er ikke juks. De er energistyring.</p>
+          </div>
+          <div class="principle">
+            <h3>2. Mix nytt + gammelt</h3>
+            <p>Dere liker både arkitektur og moderne kunst, så hver dag blander nytt byliv med steder som har sjel.</p>
+          </div>
+          <div class="principle">
+            <h3>3. Én splurge, én easy win</h3>
+            <p>Hold plass til ett wow-måltid og ett enkelt sted som alltid redder dagen.</p>
+          </div>
+          <div class="principle">
+            <h3>4. La dag 5 være fleks</h3>
+            <p>Den dagen brukes best som helgebonus, Ari-reset eller “vi vil tilbake hit”-dag.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="day card fade-up" id="day1">
+        <div class="day-head">
+          <div>
+            <p class="eyebrow">Dag 1</p>
+            <h2>Land mykt</h2>
+            <div class="day-meta">
+              <span class="day-chip">Ankomst</span>
+              <span class="day-chip">Lav puls</span>
+              <span class="day-chip">Ingen FOMO</span>
+            </div>
+          </div>
+          <div class="stress">
+            <small>Stressfaktor</small>
+            <strong>2 / 10</strong>
+            <div class="meter" aria-hidden="true">
+              <span class="on"></span><span class="on"></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline">
+          <div class="stop">
+            <div class="stop-time">Etter innsjekk</div>
+            <div class="stop-content">
+              <h4>La Bangkok komme til dere</h4>
+              <p>
+                PDF-guiden er helt riktig her: første dag bør dere ikke late som dere skal “vinne” byen.
+                Pool, dusj, mat, kanskje massasje, og maks én kort kveldstur i nabolaget.
+              </p>
+            </div>
+          </div>
+
+          <div class="stop">
+            <div class="stop-time">Middag</div>
+            <div class="stop-content">
+              <h4>Velg noe enkelt men fint</h4>
+              <p>
+                Hvis dere bor sentralt er <strong>Open House i Central Embassy</strong> super som første kveld:
+                pen arkitektur, masse matvalg og null logistikkstress. Hvis dere vil ha litt mer “ny Bangkok”,
+                ta en kveldssving innom <strong>One Bangkok</strong>.
+              </p>
+              <div class="link-row">
+                <a class="action" href="https://maps.apple.com/?q=Open+House+Central+Embassy+Bangkok" target="_blank" rel="noopener noreferrer">Apple Maps</a>
+                <a class="action" href="https://www.centralembassy.com/anchor/openhouse/" target="_blank" rel="noopener noreferrer">Official</a>
+                <a class="action" href="https://maps.apple.com/?q=One+Bangkok" target="_blank" rel="noopener noreferrer">One Bangkok</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="swap-box">
+          <strong>Why this works for dere to</strong>
+          <p>
+            Dere sparer kruttet til de gode dagene, og unngår den klassiske første-kveld-fella hvor man
+            bruker masse penger og energi på et område man egentlig ikke kommer til å huske.
+          </p>
+        </div>
+      </section>
+
+      <section class="day card fade-up" id="day2">
+        <div class="day-head">
+          <div>
+            <p class="eyebrow">Dag 2</p>
+            <h2>Hard shopping med kunstpause</h2>
+            <div class="day-meta">
+              <span class="day-chip">Siam</span>
+              <span class="day-chip">Ploenchit</span>
+              <span class="day-chip">EM District</span>
+            </div>
+          </div>
+          <div class="stress">
+            <small>Stressfaktor</small>
+            <strong>7 / 10</strong>
+            <div class="meter" aria-hidden="true">
+              <span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span>
+              <span class="on"></span><span class="on"></span><span></span><span></span><span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline">
+          <div class="stop">
+            <div class="stop-time">10:00</div>
+            <div class="stop-content">
+              <h4>BACC først, før shoppinghjernen tar over</h4>
+              <p>
+                Begynn ved <strong>BACC</strong> når de åpner. Det gir dere et skikkelig moderne kunstanker midt i
+                shoppingaksen, og dere kan kjenne på utstillinger før byen går fullt tempo.
+              </p>
+              <div class="link-row">
+                <a class="action" href="https://maps.apple.com/?q=Bangkok+Art+and+Culture+Centre" target="_blank" rel="noopener noreferrer">Apple Maps</a>
+                <a class="action" href="https://www.bacc.or.th/en" target="_blank" rel="noopener noreferrer">Official</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="stop">
+            <div class="stop-time">11:30</div>
+            <div class="stop-content">
+              <h4>Jim Thompson som design-bridge</h4>
+              <p>
+                Gå videre til <strong>Jim Thompson House</strong> og gjerne <strong>Jim Thompson Art Center</strong>.
+                Her får dere både hus, hage, designhistorie og samtidskunst uten å bytte område.
+              </p>
+              <div class="link-row">
+                <a class="action" href="https://maps.apple.com/?q=Jim+Thompson+House+Museum+Bangkok" target="_blank" rel="noopener noreferrer">Apple Maps</a>
+                <a class="action" href="https://jimthompsonhouse.org/" target="_blank" rel="noopener noreferrer">House</a>
+                <a class="action" href="https://www.jimthompsonartcenter.org/" target="_blank" rel="noopener noreferrer">Art Center</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="stop">
+            <div class="stop-time">Etter lunsj</div>
+            <div class="stop-content">
+              <h4>Velg bare én shopping-rygg</h4>
+              <p>
+                Her er hemmeligheten: ikke gjør alt. Enten kjører dere <strong>Siam Center + Siam Discovery</strong>
+                hvis dere vil ha design og et litt skarpere uttrykk, eller så hopper dere til <strong>Central Embassy</strong>
+                og <strong>Open House</strong> for roligere luxe/kuratering. Hvis dere fortsatt vil mer, avslutt i
+                <strong>EM District</strong> rundt EmQuartier og Emsphere.
+              </p>
+              <div class="tag-row">
+                <span class="tag">Siam = mest tempo</span>
+                <span class="tag">Central Embassy = penest pause</span>
+                <span class="tag">EM District = trend + mat</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="stop">
+            <div class="stop-time">Kveld</div>
+            <div class="stop-content">
+              <h4>Finish med mat, ikke flere poser</h4>
+              <p>
+                Avslutt i <strong>Emsphere</strong> eller <strong>Open House</strong> i stedet for å jage enda et kjøp.
+                Dere kommer til å huske siste måltid bedre enn den femte butikken etter klokken 18.
+              </p>
+              <div class="link-row">
+                <a class="action" href="https://maps.apple.com/?q=Emsphere+Bangkok" target="_blank" rel="noopener noreferrer">Emsphere</a>
+                <a class="action" href="https://emdistrict.com/whats-em-district/" target="_blank" rel="noopener noreferrer">EM District</a>
+                <a class="action" href="https://www.centralembassy.com/about/" target="_blank" rel="noopener noreferrer">Central Embassy</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="swap-box">
+          <strong>Hvis dere må kutte noe</strong>
+          <p>
+            Kutt ett helt shoppingcluster. Siam og EM District samme dag er bare smart hvis dere har monsterenergi.
+            For de fleste er <strong>Siam + Central Embassy</strong> eller <strong>Siam + ett kort EM District-stopp</strong> bedre.
+          </p>
+        </div>
+      </section>
+
+      <section class="day card fade-up" id="day3">
+        <div class="day-head">
+          <div>
+            <p class="eyebrow">Dag 3</p>
+            <h2>River, Talat Noi og Song Wat</h2>
+            <div class="day-meta">
+              <span class="day-chip">Arkitektur</span>
+              <span class="day-chip">Sakte dag</span>
+              <span class="day-chip">Chinatown kveld</span>
+            </div>
+          </div>
+          <div class="stress">
+            <small>Stressfaktor</small>
+            <strong>4 / 10</strong>
+            <div class="meter" aria-hidden="true">
+              <span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline">
+          <div class="stop">
+            <div class="stop-time">Morgen</div>
+            <div class="stop-content">
+              <h4>Start ved vannet</h4>
+              <p>
+                Ta BTS til Saphan Taksin og jobb dere inn mot <strong>River City Bangkok</strong>, Talat Noi og
+                Song Wat. Dette er dagen for gamle shophouses, små smug, fotostopp og mer personlighet enn aircon-glans.
+              </p>
+              <div class="link-row">
+                <a class="action" href="https://maps.apple.com/?q=River+City+Bangkok" target="_blank" rel="noopener noreferrer">Apple Maps</a>
+                <a class="action" href="https://rivercitybangkok.com/" target="_blank" rel="noopener noreferrer">Official</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="stop">
+            <div class="stop-time">Brunsj</div>
+            <div class="stop-content">
+              <h4>Sarnies i det gamle båtreparasjonslokalet</h4>
+              <p>
+                <strong>Sarnies Bangkok</strong> er en ekte fulltreffer for dere: god mat, bra kaffe og en
+                restaurert 150 år gammel boat repair shop som føles som et sted, ikke bare et måltid.
+              </p>
+              <div class="link-row">
+                <a class="action" href="https://maps.apple.com/?q=Sarnies+Bangkok" target="_blank" rel="noopener noreferrer">Apple Maps</a>
+                <a class="action" href="https://sarnies.com/concept/sarnies-bangkok" target="_blank" rel="noopener noreferrer">Official</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="stop">
+            <div class="stop-time">Ettermiddag</div>
+            <div class="stop-content">
+              <h4>Song Wat for kule butikker og mer lokal edge</h4>
+              <p>
+                <strong>Song Wat</strong> er akkurat den typen område som fungerer for dere: heritage, kreative åpninger,
+                kaffe, små butikker og en mer voksen versjon av “nå fant vi noe fett” enn standardkjeder.
+              </p>
+              <div class="link-row">
+                <a class="action" href="https://maps.apple.com/?q=Song+Wat+Road+Bangkok" target="_blank" rel="noopener noreferrer">Apple Maps</a>
+                <a class="action" href="https://www.songwat.net/" target="_blank" rel="noopener noreferrer">Official</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="stop">
+            <div class="stop-time">Kveld</div>
+            <div class="stop-content">
+              <h4>Velg mellom easy og wow</h4>
+              <p>
+                Easy: gjør kveldsmat i Chinatown og ta byen som den kommer. Wow: book <strong>Potong</strong> hvis dere vil
+                gjøre én stor, unik middag i en historisk Sino-Portuguese bygning med veldig tydelig identitet.
+              </p>
+              <div class="link-row">
+                <a class="action" href="https://maps.apple.com/?q=Restaurant+Potong+Bangkok" target="_blank" rel="noopener noreferrer">Apple Maps</a>
+                <a class="action" href="https://www.restaurantpotong.com/" target="_blank" rel="noopener noreferrer">Official</a>
+                <a class="action" href="https://guide.michelin.com/us/en/bangkok-region/bangkok/restaurant/potong" target="_blank" rel="noopener noreferrer">Michelin</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="swap-box">
+          <strong>Arkitekturbonus</strong>
+          <p>
+            Hvis dere er i flyt, legg inn <strong>Grand Postal Building</strong> eller <strong>Warehouse 30</strong> på vei videre.
+            Begge bygger fint bro mellom eldre Bangkok og byens nyere kreative scene.
+          </p>
+        </div>
+      </section>
+
+      <section class="day card fade-up" id="day4">
+        <div class="day-head">
+          <div>
+            <p class="eyebrow">Dag 4</p>
+            <h2>Ny by, samtidskunst og Thonglor-kveld</h2>
+            <div class="day-meta">
+              <span class="day-chip">One Bangkok</span>
+              <span class="day-chip">Ploenchit</span>
+              <span class="day-chip">Thonglor</span>
+            </div>
+          </div>
+          <div class="stress">
+            <small>Stressfaktor</small>
+            <strong>6 / 10</strong>
+            <div class="meter" aria-hidden="true">
+              <span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span>
+              <span class="on"></span><span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline">
+          <div class="stop">
+            <div class="stop-time">Formiddag</div>
+            <div class="stop-content">
+              <h4>100 Tonson eller Bangkok CityCity</h4>
+              <p>
+                Hvis dere vil ha mer samtidskunst og mindre folkemasse, begynn ved <strong>100 Tonson Foundation</strong>.
+                Hvis utstillingskalenderen matcher og dere vil ha noe skarpere/mer independent, se også
+                <strong>Bangkok CityCity Gallery</strong>.
+              </p>
+              <div class="link-row">
+                <a class="action" href="https://maps.apple.com/?q=100+Tonson+Foundation+Bangkok" target="_blank" rel="noopener noreferrer">100 Tonson</a>
+                <a class="action" href="https://100tonsonfoundation.org/plan-your-visit/" target="_blank" rel="noopener noreferrer">Official</a>
+                <a class="action" href="https://bangkokcitycity.com/" target="_blank" rel="noopener noreferrer">CityCity</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="stop">
+            <div class="stop-time">Lunsj</div>
+            <div class="stop-content">
+              <h4>One Bangkok som ny bydel, ikke bare mall</h4>
+              <p>
+                <strong>One Bangkok</strong> er verdt det fordi dere får shopping, public art, ny arkitektur og mat i samme grep.
+                Gå Art Loop, titt innom <strong>Wireless House</strong>, og bruk <strong>Mitsukoshi Depachika</strong> hvis dere vil ha
+                en lun, velfungerende lunsj som fortsatt føles litt spesiell.
+              </p>
+              <div class="link-row">
+                <a class="action" href="https://maps.apple.com/?q=One+Bangkok" target="_blank" rel="noopener noreferrer">Apple Maps</a>
+                <a class="action" href="https://www.onebangkok.com/en/art-and-culture/" target="_blank" rel="noopener noreferrer">Art & Culture</a>
+                <a class="action" href="https://www.onebangkokmitsukoshi.com/" target="_blank" rel="noopener noreferrer">Depachika</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="stop">
+            <div class="stop-time">Sen ettermiddag</div>
+            <div class="stop-content">
+              <h4>Central Embassy hvis dere vil ha kuratert shopping</h4>
+              <p>
+                Hvis dag 2 var mer full-gass og mindre finesse, bruk en ekstra time i <strong>Central Embassy</strong>.
+                Arkitekturen er bra, tempoet er penere, og <strong>Open House</strong> gjør at dere kan sitte ned uten å føle at dagen dør.
+              </p>
+            </div>
+          </div>
+
+          <div class="stop">
+            <div class="stop-time">Kveld</div>
+            <div class="stop-content">
+              <h4>Thonglor på en enkel måte</h4>
+              <p>
+                I stedet for å “gjøre hele Sukhumvit”, dra rett til <strong>theCOMMONS Thonglor</strong>.
+                Det er sosialt, arkitektonisk kult nok, lett å spise godt i, og dere kan avslutte uten å planlegge 14 valg.
+              </p>
+              <div class="link-row">
+                <a class="action" href="https://maps.apple.com/?q=theCOMMONS+Thonglor" target="_blank" rel="noopener noreferrer">Apple Maps</a>
+                <a class="action" href="https://www.thecommonsbkk.com/thonglor" target="_blank" rel="noopener noreferrer">Official</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="swap-box">
+          <strong>Hvis dere er slitne</strong>
+          <p>
+            Dropp Thonglor og bli værende i One Bangkok lenger. Det er et av de sjeldne stedene i Bangkok
+            der ny arkitektur, kunst og shopping faktisk henger sammen som en hel opplevelse.
+          </p>
+        </div>
+      </section>
+
+      <section class="day card fade-up" id="day5">
+        <div class="day-head">
+          <div>
+            <p class="eyebrow">Dag 5</p>
+            <h2>Bonusdag som følger energien deres</h2>
+            <div class="day-meta">
+              <span class="day-chip">Weekend eller weekday</span>
+              <span class="day-chip">Fleksdag</span>
+              <span class="day-chip">Best når dere kjenner egen form</span>
+            </div>
+          </div>
+          <div class="stress">
+            <small>Stressfaktor</small>
+            <strong>Velg selv</strong>
+            <div class="meter" aria-hidden="true">
+              <span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span>
+              <span></span><span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="toggle" role="tablist" aria-label="Velg bonusdag">
+          <button type="button" data-mode="weekend">Helgemodus</button>
+          <button type="button" data-mode="weekday">Hverdagsmodus</button>
+        </div>
+
+        <div class="day5-weekend">
+          <div class="timeline">
+            <div class="stop">
+              <div class="stop-time">Tidlig</div>
+              <div class="stop-content">
+                <h4>Chatuchak før det koker</h4>
+                <p>
+                  Kom tidlig til <strong>Chatuchak Weekend Market</strong>, og tenk jakt i stedet for full mappe.
+                  Fokuser på kunst, vintage, objekter og ting som faktisk er morsomme å ta med hjem.
+                </p>
+                <div class="link-row">
+                  <a class="action" href="https://maps.apple.com/?q=Chatuchak+Weekend+Market" target="_blank" rel="noopener noreferrer">Apple Maps</a>
+                  <a class="action" href="https://www.chatuchakmarket.org/" target="_blank" rel="noopener noreferrer">Official</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="stop">
+              <div class="stop-time">Etterpå</div>
+              <div class="stop-content">
+                <h4>MOCA hvis dere fortsatt vil se mer</h4>
+                <p>
+                  Hvis dere fortsatt har overskudd, gjør <strong>MOCA Bangkok</strong> samme dag. Hvis ikke:
+                  dra hjem, dump poser, og vær stolte over at dere ikke ble for grådige.
+                </p>
+                <div class="link-row">
+                  <a class="action" href="https://maps.apple.com/?q=MOCA+Bangkok" target="_blank" rel="noopener noreferrer">Apple Maps</a>
+                  <a class="action" href="https://www.mocabangkok.com/" target="_blank" rel="noopener noreferrer">Official</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="day5-weekday">
+          <div class="timeline">
+            <div class="stop">
+              <div class="stop-time">Formiddag</div>
+              <div class="stop-content">
+                <h4>Ari som mykere bydag</h4>
+                <p>
+                  Hvis det ikke er helg, bruk bonusdagen i <strong>Ari</strong>. Det er mer nabolag, mindre performance.
+                  <strong>Josh Hotel</strong> er et greit ankerpunkt, og området rundt passer fint når dere vil ha café, design og lavere puls.
+                </p>
+                <div class="link-row">
+                  <a class="action" href="https://maps.apple.com/?q=Josh+Hotel+Bangkok" target="_blank" rel="noopener noreferrer">Apple Maps</a>
+                  <a class="action" href="https://www.joshhotel.com/" target="_blank" rel="noopener noreferrer">Official</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="stop">
+              <div class="stop-time">Ettermiddag</div>
+              <div class="stop-content">
+                <h4>Gjør noe dere ville sett mer av</h4>
+                <p>
+                  Dette er dagen for å gå tilbake til favorittområdet deres: mer Song Wat, mer One Bangkok,
+                  eller mer kunst. Ikke fyll den bare fordi kalenderen har plass.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="swap-box">
+          <strong>Beste bruk av dag 5</strong>
+          <p>
+            Bruk den som et ekko av den beste dagen deres, ikke som et pliktløp for å “dekke” enda et område.
+            Bangkok blir alltid bedre når man går litt dypere i noe man allerede liker.
+          </p>
+        </div>
+      </section>
+
+      <section class="section-card card fade-up" id="favorites">
+        <div class="section-head">
+          <div>
+            <h2>Favoritter akkurat nå</h2>
+          </div>
+          <p>
+            Dette er shortlist-delen: steder som faktisk passer preferansene deres, ikke bare “must see”-lista som alle får.
+          </p>
+        </div>
+
+        <div class="venue-grid">
+          <article class="venue">
+            <strong>BACC</strong>
+            <p>Gratis, sentralt og en enkel måte å få samtidskunst inn i shoppingdagen uten ekstra logistikk.</p>
+            <div class="mini-note">Best for: start på dag 2</div>
+          </article>
+          <article class="venue">
+            <strong>Song Wat</strong>
+            <p>Beste miks av gammel by, nye kreative åpninger, kaffe og små butikker med karakter.</p>
+            <div class="mini-note">Best for: dag 3</div>
+          </article>
+          <article class="venue">
+            <strong>One Bangkok</strong>
+            <p>Ny bydel som faktisk gir mening: shopping, public art, god mat og arkitektur i samme loop.</p>
+            <div class="mini-note">Best for: dag 4</div>
+          </article>
+          <article class="venue">
+            <strong>Potong</strong>
+            <p>Unik middag hvis dere vil bruke én kveld på noe dere virkelig kommer til å huske.</p>
+            <div class="mini-note">Best for: splurge</div>
+          </article>
+          <article class="venue">
+            <strong>theCOMMONS Thonglor</strong>
+            <p>Enkel seier når dere vil ha en kul kveld uten å finlese halve internett først.</p>
+            <div class="mini-note">Best for: mat + chill</div>
+          </article>
+          <article class="venue">
+            <strong>Chatuchak</strong>
+            <p>Kun hvis helg og dere går tidlig. Bra for funn, dårlig for seig ettermiddagsambisjon.</p>
+            <div class="mini-note">Best for: bonusdag</div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section-card card fade-up" id="iphone">
+        <div class="section-head">
+          <div>
+            <h2>Bruk på iPhone</h2>
+          </div>
+          <p>
+            Siden er laget som én fil for å være enkel å åpne, dele og eventuelt lagre til hjemmeskjermen.
+          </p>
+        </div>
+        <div class="principles">
+          <div class="principle">
+            <h3>Åpne lokalt</h3>
+            <p>Send HTML-filen til Files, iCloud Drive eller AirDrop, og åpne den direkte på mobilen.</p>
+          </div>
+          <div class="principle">
+            <h3>Lagre til Home Screen</h3>
+            <p>I Safari: delingsknappen → “Add to Home Screen” hvis dere vil ha den som snarvei på tur.</p>
+          </div>
+          <div class="principle">
+            <h3>Bruk Apple Maps-knappene</h3>
+            <p>Hvert nøkkelsted har direkte lenker så dere slipper å kopiere navn manuelt ute i gata.</p>
+          </div>
+          <div class="principle">
+            <h3>Sjekk hours live</h3>
+            <p>Kunststeder og restauranter kan endre åpningstider, så official-lenkene er med for siste status.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-card card fade-up" id="sources">
+        <div class="section-head">
+          <div>
+            <h2>Kilder</h2>
+          </div>
+          <p>
+            Sideoppsettet er basert på brukerens PDF, spesielt itinerary-siden 15. Stedene under ble verifisert mot offisielle
+            eller primære kilder onsdag 22. juli 2026.
+          </p>
+        </div>
+        <div class="sources">
+          <div><a href="https://www.bacc.or.th/en" target="_blank" rel="noopener noreferrer">Bangkok Art and Culture Centre</a> og <a href="https://en.bacc.or.th/plan-your-visit" target="_blank" rel="noopener noreferrer">Plan your visit</a></div>
+          <div><a href="https://jimthompsonhouse.org/" target="_blank" rel="noopener noreferrer">Jim Thompson House Museum</a> og <a href="https://www.jimthompsonartcenter.org/" target="_blank" rel="noopener noreferrer">Jim Thompson Art Center</a></div>
+          <div><a href="https://www.centralembassy.com/about/" target="_blank" rel="noopener noreferrer">Central Embassy</a> og <a href="https://www.centralembassy.com/anchor/openhouse/" target="_blank" rel="noopener noreferrer">Open House</a></div>
+          <div><a href="https://emdistrict.com/whats-em-district/" target="_blank" rel="noopener noreferrer">EM District</a> og <a href="https://emdistrict.com/contact-us/" target="_blank" rel="noopener noreferrer">åpningstider / adresser</a></div>
+          <div><a href="https://www.onebangkok.com/en/art-and-culture/" target="_blank" rel="noopener noreferrer">One Bangkok Art &amp; Culture</a> og <a href="https://www.onebangkokmitsukoshi.com/" target="_blank" rel="noopener noreferrer">Mitsukoshi Depachika</a></div>
+          <div><a href="https://rivercitybangkok.com/" target="_blank" rel="noopener noreferrer">River City Bangkok</a> og <a href="https://www.songwat.net/" target="_blank" rel="noopener noreferrer">Song Wat</a></div>
+          <div><a href="https://sarnies.com/concept/sarnies-bangkok" target="_blank" rel="noopener noreferrer">Sarnies Bangkok</a> og <a href="https://www.restaurantpotong.com/" target="_blank" rel="noopener noreferrer">Restaurant Potong</a></div>
+          <div><a href="https://guide.michelin.com/us/en/bangkok-region/bangkok/restaurant/potong" target="_blank" rel="noopener noreferrer">Michelin Guide: Potong</a></div>
+          <div><a href="https://www.thecommonsbkk.com/thonglor" target="_blank" rel="noopener noreferrer">theCOMMONS Thonglor</a> og <a href="https://www.warehouse30.com/event/" target="_blank" rel="noopener noreferrer">Warehouse 30</a></div>
+          <div><a href="https://100tonsonfoundation.org/plan-your-visit/" target="_blank" rel="noopener noreferrer">100 Tonson Foundation</a> og <a href="https://bangkokcitycity.com/" target="_blank" rel="noopener noreferrer">Bangkok CityCity Gallery</a></div>
+          <div><a href="https://www.mocabangkok.com/" target="_blank" rel="noopener noreferrer">MOCA Bangkok</a> og <a href="https://www.chatuchakmarket.org/" target="_blank" rel="noopener noreferrer">Chatuchak Market</a></div>
+          <div><a href="https://www.joshhotel.com/" target="_blank" rel="noopener noreferrer">Josh Hotel / Ari</a> og <a href="https://www.thailandpost.co.th/un/article_detail/article/0/2746" target="_blank" rel="noopener noreferrer">Grand Postal Building history</a></div>
+        </div>
+      </section>
+
+      <div class="footer-note fade-up">
+        Denne siden er laget for praktisk bruk, ikke for å “dekke alt”. Hvis dere ender med å bruke mer tid i Song Wat,
+        BACC, One Bangkok eller en butikkgate dere liker, er det et tegn på at planen funker. Bangkok blir best når man lar
+        de sterkeste sporene få litt mer plass.
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const buttons = document.querySelectorAll(".toggle button");
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        document.body.dataset.day5Mode = button.dataset.mode;
+      });
+    });
+  </script>
+</body>
+</html>
